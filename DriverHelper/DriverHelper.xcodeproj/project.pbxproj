@@ -20,6 +20,7 @@
 		F27A7553297D9DBC009B9157 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F27A7552297D9DBC009B9157 /* MapKit.framework */; };
 		F27A7555297D9E41009B9157 /* Login.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F27A7554297D9E41009B9157 /* Login.storyboard */; };
 		F27A7557297D9E5E009B9157 /* LoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F27A7556297D9E5E009B9157 /* LoginController.swift */; };
+		F27A755A297DAB16009B9157 /* Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = F27A7559297DAB16009B9157 /* Cache.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,6 +58,7 @@
 		F27A7552297D9DBC009B9157 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		F27A7554297D9E41009B9157 /* Login.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Login.storyboard; sourceTree = "<group>"; };
 		F27A7556297D9E5E009B9157 /* LoginController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginController.swift; sourceTree = "<group>"; };
+		F27A7559297DAB16009B9157 /* Cache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cache.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -119,6 +121,7 @@
 				F27A7527297D9D6A009B9157 /* DriverHelper.xcdatamodeld */,
 				F27A7554297D9E41009B9157 /* Login.storyboard */,
 				F27A7556297D9E5E009B9157 /* LoginController.swift */,
+				F27A7559297DAB16009B9157 /* Cache.swift */,
 			);
 			path = DriverHelper;
 			sourceTree = "<group>";
@@ -284,6 +287,7 @@
 				F27A7529297D9D6A009B9157 /* DriverHelper.xcdatamodeld in Sources */,
 				F27A751F297D9D6A009B9157 /* AppDelegate.swift in Sources */,
 				F27A7521297D9D6A009B9157 /* SceneDelegate.swift in Sources */,
+				F27A755A297DAB16009B9157 /* Cache.swift in Sources */,
 				F27A7557297D9E5E009B9157 /* LoginController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
