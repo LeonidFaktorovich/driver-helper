@@ -23,6 +23,11 @@
 		F27A7555297D9E41009B9157 /* Login.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F27A7554297D9E41009B9157 /* Login.storyboard */; };
 		F27A7557297D9E5E009B9157 /* LoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F27A7556297D9E5E009B9157 /* LoginController.swift */; };
 		F27A755A297DAB16009B9157 /* Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = F27A7559297DAB16009B9157 /* Cache.swift */; };
+		F2DAAB39298FD4AD00B08D5B /* MainBar.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F2DAAB38298FD4AD00B08D5B /* MainBar.storyboard */; };
+		F2DAAB3B298FD4F100B08D5B /* MainBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2DAAB3A298FD4F100B08D5B /* MainBarController.swift */; };
+		F2DAAB3D298FEABE00B08D5B /* SettingsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2DAAB3C298FEABE00B08D5B /* SettingsController.swift */; };
+		F2DAAB3F298FEACC00B08D5B /* MapController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2DAAB3E298FEACC00B08D5B /* MapController.swift */; };
+		F2DAAB41298FEAE100B08D5B /* FriendsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2DAAB40298FEAE100B08D5B /* FriendsController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -63,6 +68,11 @@
 		F27A7554297D9E41009B9157 /* Login.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Login.storyboard; sourceTree = "<group>"; };
 		F27A7556297D9E5E009B9157 /* LoginController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginController.swift; sourceTree = "<group>"; };
 		F27A7559297DAB16009B9157 /* Cache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cache.swift; sourceTree = "<group>"; };
+		F2DAAB38298FD4AD00B08D5B /* MainBar.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = MainBar.storyboard; sourceTree = "<group>"; };
+		F2DAAB3A298FD4F100B08D5B /* MainBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainBarController.swift; sourceTree = "<group>"; };
+		F2DAAB3C298FEABE00B08D5B /* SettingsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsController.swift; sourceTree = "<group>"; };
+		F2DAAB3E298FEACC00B08D5B /* MapController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapController.swift; sourceTree = "<group>"; };
+		F2DAAB40298FEAE100B08D5B /* FriendsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -128,6 +138,11 @@
 				F27A7559297DAB16009B9157 /* Cache.swift */,
 				F21DF0D1298FCCC600FD9F4D /* Registration.storyboard */,
 				F21DF0D3298FCD7C00FD9F4D /* RegistrationController.swift */,
+				F2DAAB38298FD4AD00B08D5B /* MainBar.storyboard */,
+				F2DAAB3A298FD4F100B08D5B /* MainBarController.swift */,
+				F2DAAB3C298FEABE00B08D5B /* SettingsController.swift */,
+				F2DAAB3E298FEACC00B08D5B /* MapController.swift */,
+				F2DAAB40298FEAE100B08D5B /* FriendsController.swift */,
 			);
 			path = DriverHelper;
 			sourceTree = "<group>";
@@ -266,6 +281,7 @@
 				F27A752E297D9D6C009B9157 /* LaunchScreen.storyboard in Resources */,
 				F27A752B297D9D6C009B9157 /* Assets.xcassets in Resources */,
 				F27A7526297D9D6A009B9157 /* Main.storyboard in Resources */,
+				F2DAAB39298FD4AD00B08D5B /* MainBar.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -290,12 +306,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F2DAAB3D298FEABE00B08D5B /* SettingsController.swift in Sources */,
+				F2DAAB3B298FD4F100B08D5B /* MainBarController.swift in Sources */,
 				F21DF0D4298FCD7C00FD9F4D /* RegistrationController.swift in Sources */,
 				F27A7523297D9D6A009B9157 /* ViewController.swift in Sources */,
 				F27A7529297D9D6A009B9157 /* DriverHelper.xcdatamodeld in Sources */,
+				F2DAAB41298FEAE100B08D5B /* FriendsController.swift in Sources */,
 				F27A751F297D9D6A009B9157 /* AppDelegate.swift in Sources */,
 				F27A7521297D9D6A009B9157 /* SceneDelegate.swift in Sources */,
 				F27A755A297DAB16009B9157 /* Cache.swift in Sources */,
+				F2DAAB3F298FEACC00B08D5B /* MapController.swift in Sources */,
 				F27A7557297D9E5E009B9157 /* LoginController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -15,4 +15,13 @@ class RegistrationController : UIViewController {
         super.viewDidLoad()
         
     }
+    @IBAction func create(_ sender: Any) {
+        let test = true
+        if test {
+            let main_storyboard = UIStoryboard(name: "MainBar", bundle: nil)
+            let main_bar = main_storyboard.instantiateViewController(withIdentifier: "MainBar") as! MainBarController
+            main_bar.modalPresentationStyle = .fullScreen
+            present(main_bar, animated: true)
+        }
+    }
 }
