@@ -9,8 +9,4 @@ class MainBarController : UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
     }
-    
-    
-
-
 }

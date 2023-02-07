@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9855D2B12992ED3000A46627 /* Attachments in Resources */ = {isa = PBXBuildFile; fileRef = 9855D2B02992ED3000A46627 /* Attachments */; };
 		F21DF0D2298FCCC600FD9F4D /* Registration.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F21DF0D1298FCCC600FD9F4D /* Registration.storyboard */; };
 		F21DF0D4298FCD7C00FD9F4D /* RegistrationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F21DF0D3298FCD7C00FD9F4D /* RegistrationController.swift */; };
 		F27A751F297D9D6A009B9157 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F27A751E297D9D6A009B9157 /* AppDelegate.swift */; };
@@ -48,6 +49,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		9855D2B02992ED3000A46627 /* Attachments */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Attachments; sourceTree = "<group>"; };
 		F21DF0D1298FCCC600FD9F4D /* Registration.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Registration.storyboard; sourceTree = "<group>"; };
 		F21DF0D3298FCD7C00FD9F4D /* RegistrationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationController.swift; sourceTree = "<group>"; };
 		F27A751B297D9D6A009B9157 /* DriverHelper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DriverHelper.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -125,6 +127,7 @@
 		F27A751D297D9D6A009B9157 /* DriverHelper */ = {
 			isa = PBXGroup;
 			children = (
+				9855D2B02992ED3000A46627 /* Attachments */,
 				F27A751E297D9D6A009B9157 /* AppDelegate.swift */,
 				F27A7520297D9D6A009B9157 /* SceneDelegate.swift */,
 				F27A7522297D9D6A009B9157 /* ViewController.swift */,
@@ -279,6 +282,7 @@
 				F21DF0D2298FCCC600FD9F4D /* Registration.storyboard in Resources */,
 				F27A7555297D9E41009B9157 /* Login.storyboard in Resources */,
 				F27A752E297D9D6C009B9157 /* LaunchScreen.storyboard in Resources */,
+				9855D2B12992ED3000A46627 /* Attachments in Resources */,
 				F27A752B297D9D6C009B9157 /* Assets.xcassets in Resources */,
 				F27A7526297D9D6A009B9157 /* Main.storyboard in Resources */,
 				F2DAAB39298FD4AD00B08D5B /* MainBar.storyboard in Resources */,

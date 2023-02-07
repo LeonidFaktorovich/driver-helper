@@ -8,21 +8,30 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Item 2-->
+        <!--Map-->
         <scene sceneID="Vjs-51-wEM">
             <objects>
                 <viewController useStoryboardIdentifierAsRestorationIdentifier="YES" id="Gly-Jk-aT1" customClass="MapController" customModule="DriverHelper" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="YO9-9J-NXw">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="8ZV-hz-tm1">
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="813"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </mapView>
+                        </subviews>
                         <viewLayoutGuide key="safeArea" id="m9H-85-bJg"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Item 2" id="TqZ-kw-gwF"/>
+                    <tabBarItem key="tabBarItem" title="Map" id="TqZ-kw-gwF"/>
+                    <connections>
+                        <outlet property="mapView" destination="8ZV-hz-tm1" id="bTf-1g-OVM"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="8Ok-5V-q1j" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-907" y="669"/>
+            <point key="canvasLocation" x="-907.24637681159425" y="668.97321428571422"/>
         </scene>
         <!--Item-->
         <scene sceneID="1BV-Td-kfQ">
