@@ -102,12 +102,18 @@ extension User {
         let httpBody = try! jsonEncoder.encode(data)
         request.httpBody = httpBody
         let session = URLSession.shared
+        
+        // for async use DispatchQueue.main.async {}
         let task = session.dataTask(with: request) { data, response, error in
-            DispatchQueue.main.async {
-                guard let token_data = data else { return }
-                self.token = try! JSONDecoder().decode(Token.self, from: token_data)
-                UserSave(user: main_user!)
+            if let httpResponse = response as? HTTPURLResponse {
+                if (httpResponse.statusCode != 200) {
+                    print("error")
+                }
             }
+            guard let token_data = data else { return }
+            self.token = try! JSONDecoder().decode(Token.self, from: token_data)
+            UserSave(user: main_user!)
+            
         }
         task.resume()
     }

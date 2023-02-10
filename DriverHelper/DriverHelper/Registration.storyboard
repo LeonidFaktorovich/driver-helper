@@ -43,7 +43,7 @@
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="f5T-Ef-K4o">
-                                <rect key="frame" x="141" y="497" width="132" height="31"/>
+                                <rect key="frame" x="186" y="513" width="132" height="31"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" title="Create"/>
@@ -51,12 +51,20 @@
                                     <action selector="create:" destination="ZPK-uN-baX" eventType="touchUpInside" id="nTb-9R-5HO"/>
                                 </connections>
                             </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="KdN-Ue-gdD">
+                                <rect key="frame" x="0.0" y="484" width="414" height="34"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="vyo-oG-pto"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
                     <connections>
                         <outlet property="create_button" destination="f5T-Ef-K4o" id="rMk-Na-SDP"/>
+                        <outlet property="error_label" destination="KdN-Ue-gdD" id="naq-eB-qcz"/>
                         <outlet property="login_label" destination="rdK-LK-Y1z" id="oLQ-wc-rRs"/>
                         <outlet property="login_text" destination="8KM-dr-Nku" id="oBH-c6-Ik3"/>
                         <outlet property="password_label" destination="Vqq-hj-6oi" id="e4v-us-h1F"/>
