@@ -58,9 +58,9 @@
                     <connections>
                         <outlet property="create_button" destination="f5T-Ef-K4o" id="rMk-Na-SDP"/>
                         <outlet property="login_label" destination="rdK-LK-Y1z" id="oLQ-wc-rRs"/>
-                        <outlet property="login_text" destination="0pV-Lf-dUz" id="eFN-7W-WOF"/>
+                        <outlet property="login_text" destination="8KM-dr-Nku" id="oBH-c6-Ik3"/>
                         <outlet property="password_label" destination="Vqq-hj-6oi" id="e4v-us-h1F"/>
-                        <outlet property="password_text" destination="0pV-Lf-dUz" id="aIT-bi-ywS"/>
+                        <outlet property="password_text" destination="0pV-Lf-dUz" id="HN0-eP-aoQ"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ta8-jY-0XC" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

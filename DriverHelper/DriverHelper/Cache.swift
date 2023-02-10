@@ -15,11 +15,11 @@ enum DataKeys : String {
 
 
 
-func UserSave(user data: UserData) -> Void {
+func UserSave(user: User) -> Void {
     let defaults = UserDefaults.standard
-    defaults.set(data.login, forKey: DataKeys.login.rawValue)
-    defaults.set(data.password, forKey: DataKeys.password.rawValue)
-    defaults.set(data.token, forKey: DataKeys.token.rawValue)
+    defaults.set(user.data.login, forKey: DataKeys.login.rawValue)
+    defaults.set(user.data.password, forKey: DataKeys.password.rawValue)
+    defaults.set(user.token!.token, forKey: DataKeys.token.rawValue)
 }
 
 func GetToken() -> String? {
