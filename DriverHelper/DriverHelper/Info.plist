@@ -8,7 +8,7 @@
 		<true/>
 		<key>NSExceptionDomains</key>
 		<dict>
-			<key>xxx</key>
+			<key>207.154.204.60</key>
 			<string></string>
 		</dict>
 	</dict>

@@ -1,0 +1,163 @@
+openapi: "3.0.0"
+info:
+    title: DriverHelper API
+    version: "1.0"
+servers:
+    - url: http://207.154.204.60:5000/
+components:
+    schemas:
+        point:
+            type: object
+            properties:
+                x:
+                    type: number
+                y:
+                    type: number
+            required:
+                - x
+                - y
+        route:
+            type: object
+            properties:
+                start:
+                    $ref: '#/components/schemas/point'
+                finish:
+                    $ref: '#/components/schemas/point'
+                owner:
+                    description: login of owner of this route
+                    type: string
+    securitySchemes:
+        UserToken:
+            type: apiKey
+            in: header
+            name: token
+        
+paths:
+    /registration:
+        post:
+            description: create user
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                login:
+                                    description: encode login
+                                    type: string
+                                password:
+                                    description: encode hash of password
+                                    type: string
+                            required:
+                                - login
+                                - password
+            responses:
+                '200': 
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    token: 
+                                        description: encode token
+                                        type: string
+                '409':
+                    description: Invalid registration
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    detail:
+                                        description: encode error message
+                                        type: string
+    /login:
+        post:
+            description: login into application and getting token
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                login:
+                                    description: encode login
+                                    type: string
+                                password:
+                                    description: encode hash of password
+                                    type: string
+                            required:
+                                - login
+                                - password
+            responses:
+                '200': 
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    token: 
+                                        description: encode token
+                                        type: string
+                '401':
+                    description: Invalid login
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    detail:
+                                        description: encode error message
+                                        type: string
+    /add_friend:
+        post:
+            description: add friend
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                friend_login:
+                                    description: login of friend
+                                    type: string
+                            required:
+                                - friend_login
+            security:
+                - UserToken: [ ]
+            responses:
+                '200':
+                    description: OK
+                '404':
+                    description: login was not fount
+    /map:
+        get:
+            description: get my routes and my friends' routes
+            security:
+                - UserToken: [ ]
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    routes:
+                                        description: my routes and my friends' routes
+                                        type: array
+                                        items:
+                                            $ref: '#/components/schemas/route'
+                                
+      
+                                
+                                
+
+
+
+
