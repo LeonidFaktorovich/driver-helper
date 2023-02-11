@@ -19,12 +19,15 @@
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="8ZV-hz-tm1">
                                 <rect key="frame" x="0.0" y="0.0" width="414" height="813"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="tintColor" systemColor="tintColor"/>
                             </mapView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="m9H-85-bJg"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Map" id="TqZ-kw-gwF"/>
+                    <tabBarItem key="tabBarItem" title="Map" image="map" id="TqZ-kw-gwF">
+                        <color key="badgeColor" systemColor="tintColor"/>
+                    </tabBarItem>
                     <connections>
                         <outlet property="mapView" destination="8ZV-hz-tm1" id="bTf-1g-OVM"/>
                     </connections>
@@ -33,7 +36,7 @@
             </objects>
             <point key="canvasLocation" x="-907.24637681159425" y="668.97321428571422"/>
         </scene>
-        <!--Item-->
+        <!--Settings-->
         <scene sceneID="1BV-Td-kfQ">
             <objects>
                 <viewController useStoryboardIdentifierAsRestorationIdentifier="YES" id="wHW-cF-5cd" customClass="SettingsController" customModule="DriverHelper" customModuleProvider="target" sceneMemberID="viewController">
@@ -43,13 +46,13 @@
                         <viewLayoutGuide key="safeArea" id="XYn-ee-MnP"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Item" id="g1r-ph-Hi0"/>
+                    <tabBarItem key="tabBarItem" title="Settings" image="settings" id="g1r-ph-Hi0"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="R23-4z-QTH" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-200" y="669"/>
         </scene>
-        <!--Item 1-->
+        <!--Friends-->
         <scene sceneID="hfF-75-OmH">
             <objects>
                 <viewController useStoryboardIdentifierAsRestorationIdentifier="YES" id="Jc9-sc-5uc" customClass="FriendsController" customModule="DriverHelper" customModuleProvider="target" sceneMemberID="viewController">
@@ -59,7 +62,7 @@
                         <viewLayoutGuide key="safeArea" id="pki-wp-Re2"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Item 1" id="YSh-ml-lUZ"/>
+                    <tabBarItem key="tabBarItem" title="Friends" image="friends" id="YSh-ml-lUZ"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="X95-W6-CfS" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -72,7 +75,7 @@
                     <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="zmv-Ij-dJW">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="49"/>
                         <autoresizingMask key="autoresizingMask"/>
-                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" red="0.9248145517676768" green="0.91624665751860979" blue="0.91695779268363642" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                     </tabBar>
                     <connections>
                         <segue destination="Jc9-sc-5uc" kind="relationship" relationship="viewControllers" id="1J5-EL-167"/>
@@ -86,8 +89,14 @@
         </scene>
     </scenes>
     <resources>
+        <image name="friends" width="25" height="25"/>
+        <image name="map" width="25" height="25"/>
+        <image name="settings" width="25" height="25"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="tintColor">
+            <color red="0.0" green="0.47843137254901963" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>
