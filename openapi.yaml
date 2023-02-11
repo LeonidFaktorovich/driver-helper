@@ -103,7 +103,7 @@ paths:
                                     token: 
                                         description: encode token
                                         type: string
-                '401':
+                '404':
                     description: Invalid login
                     content:
                         application/json:

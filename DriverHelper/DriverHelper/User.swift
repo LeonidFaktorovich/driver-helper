@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 extension String {
     func base64Encoded() -> String {
@@ -22,7 +23,8 @@ enum Server : String {
     case handler_register = "/register"
     case handler_login = "/login"
     case handler_make_friend = "/add_friend"
-    case handler_update_points = "/map"
+    case handler_make_route = "/add_route"
+    case handler_map = "/map"
     case port = "5000"
 }
 
@@ -74,6 +76,14 @@ class User {
             self.token = token
         }
     }
+    func MakeUrl(path: String) -> URL {
+        var component = URLComponents()
+        component.scheme = Server.prot.rawValue
+        component.host = Server.host.rawValue
+        component.path = path
+        component.port = Int(Server.port.rawValue)
+        return component.url!
+    }
     var data: PersonData
     var token: Token?
     init(login: String, password: String) {
@@ -81,18 +91,12 @@ class User {
         token = nil
     }
     
+    
 }
 
 extension User {
-    func Register() -> Void {
-        var cur_url: URL {
-            var component = URLComponents()
-            component.scheme = Server.prot.rawValue
-            component.host = Server.host.rawValue
-            component.path = Server.handler_register.rawValue
-            component.port = Int(Server.port.rawValue)
-            return component.url!
-        }
+    func Register() -> String? {
+        let cur_url = MakeUrl(path: Server.handler_register.rawValue)
         
         var request = URLRequest(url: cur_url)
         request.httpMethod = "POST"
@@ -104,42 +108,77 @@ extension User {
         let session = URLSession.shared
         
         // for async use DispatchQueue.main.async {}
+        var error_msg: String?
         let task = session.dataTask(with: request) { data, response, error in
             if let httpResponse = response as? HTTPURLResponse {
-                if (httpResponse.statusCode != 200) {
-                    print("error")
+                guard let token_data = data else { return }
+                if httpResponse.statusCode == 200 {
+                    self.token = try! JSONDecoder().decode(Token.self, from: token_data)
+                    UserSave(user: main_user!)
+                } else if httpResponse.statusCode == 409 {
+                    let json = try? JSONSerialization.jsonObject(with: data!, options: [])
+                    let dictionary = json as! [String: Any]
+                    error_msg = dictionary["detail"] as? String
+                } else {
+                    error_msg = "Uknown error"
                 }
             }
-            guard let token_data = data else { return }
-            self.token = try! JSONDecoder().decode(Token.self, from: token_data)
-            UserSave(user: main_user!)
-            
         }
         task.resume()
+        return error_msg
+        
     }
-    func Login() -> Void {
-        var cur_url: URL {
-            var component = URLComponents()
-            component.scheme = Server.prot.rawValue
-            component.host = Server.host.rawValue
-            component.path = Server.handler_login.rawValue
-            component.port = Int(Server.port.rawValue)
-            return component.url!
-        }
+    func Login() -> String? {
+        let cur_url = MakeUrl(path: Server.handler_login.rawValue)
         var request = URLRequest(url: cur_url)
-        request.httpMethod = "GET"
+        request.httpMethod = "POST"
         request.allHTTPHeaderFields = ["Content-Type" : "application/json"]
         let jsonEncoder = JSONEncoder()
         let httpBody = try! jsonEncoder.encode(data)
         request.httpBody = httpBody
         let session = URLSession.shared
+        
+        var error_msg: String?
         let task = session.dataTask(with: request) { data, response, error in
-            DispatchQueue.main.async {
+            if let httpResponse = response as? HTTPURLResponse {
                 guard let token_data = data else { return }
-                self.token = try! JSONDecoder().decode(Token.self, from: token_data)
+                if httpResponse.statusCode == 200 {
+                    self.token = try! JSONDecoder().decode(Token.self, from: token_data)
+                    UserSave(user: main_user!)
+                } else if httpResponse.statusCode == 404 {
+                    let json = try? JSONSerialization.jsonObject(with: data!, options: [])
+                    let dictionary = json as! [String: Any]
+                    error_msg = dictionary["detail"] as? String
+                } else {
+                    error_msg = "Uknown error"
+                }
             }
         }
         task.resume()
+        return error_msg
+    }
+    func AddFriend(friend_login: String) -> String? {
+        let cur_url = MakeUrl(path: Server.handler_make_friend.rawValue)
+        var request = URLRequest(url: cur_url)
+        request.httpMethod = "POST"
+        request.allHTTPHeaderFields = ["Content-Type" : "application/json", "token" : token!.token.base64Encoded()]
+        let dict = ["friend_login" : friend_login.base64Encoded()]
+        let httpBody = try! JSONSerialization.data(withJSONObject: dict)
+        request.httpBody = httpBody
+        let session = URLSession.shared
+        
+        var error_msg: String?
+        let task = session.dataTask(with: request) { data, response, error in
+            if let httpResponse = response as? HTTPURLResponse {
+                if httpResponse.statusCode == 404 {
+                    error_msg = "User with " + friend_login + " not found."
+                } else {
+                    error_msg = "Uknown error"
+                }
+            }
+        }
+        task.resume()
+        return error_msg
     }
 }
 

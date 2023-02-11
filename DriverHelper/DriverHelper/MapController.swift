@@ -3,6 +3,17 @@ import UIKit
 import MapKit
 import Contacts
 
+struct MapPoint {
+    let x: Double
+    let y: Double
+}
+
+struct NetworkRoute {
+    let start: MapPoint
+    let finish: MapPoint
+    let owner: String
+}
+
 class MapController: UIViewController, MKMapViewDelegate {
     @IBOutlet weak var mapView: MKMapView!
     

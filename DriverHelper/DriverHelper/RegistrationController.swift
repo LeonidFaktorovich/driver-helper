@@ -31,10 +31,11 @@ class RegistrationController : UIViewController {
         error_label.text = ""
         
         main_user = User(login:login_text.text!, password:password_text.text!)
-        main_user!.Register()
-        
-        let test = true
-        if test {
+        let error_msg = main_user!.Register()
+        if error_msg != nil {
+            error_label.text = error_msg
+            error_label.textColor = UIColor.red
+        } else {
             let main_storyboard = UIStoryboard(name: "MainBar", bundle: nil)
             let main_bar = main_storyboard.instantiateViewController(withIdentifier: "MainBar") as! MainBarController
             main_bar.modalPresentationStyle = .fullScreen
