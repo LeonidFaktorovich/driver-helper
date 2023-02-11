@@ -31,7 +31,7 @@ class RegistrationController : UIViewController {
         error_label.text = ""
         
         main_user = User(login:login_text.text!, password:password_text.text!)
-        main_user!.Registration()
+        main_user!.Register()
         
         let test = true
         if test {

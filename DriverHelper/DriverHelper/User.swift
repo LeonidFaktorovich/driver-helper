@@ -19,7 +19,7 @@ extension String {
 enum Server : String {
     case prot = "http"
     case host = "207.154.204.60"
-    case handler_register = "/registration"
+    case handler_register = "/register"
     case handler_login = "/login"
     case handler_make_friend = "/add_friend"
     case handler_update_points = "/map"
@@ -84,7 +84,7 @@ class User {
 }
 
 extension User {
-    func Registration() -> Void {
+    func Register() -> Void {
         var cur_url: URL {
             var component = URLComponents()
             component.scheme = Server.prot.rawValue

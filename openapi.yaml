@@ -33,7 +33,7 @@ components:
             name: token
         
 paths:
-    /registration:
+    /register:
         post:
             description: create user
             requestBody:
