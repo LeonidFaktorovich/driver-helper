@@ -11,8 +11,10 @@ components:
             properties:
                 x:
                     type: number
+                    format: double
                 y:
                     type: number
+                    format: double
             required:
                 - x
                 - y
@@ -26,6 +28,14 @@ components:
                 owner:
                     description: login of owner of this route
                     type: string
+                date_start:
+                    type: string
+                    format: YYYY-MM-DD
+                    example: 2023-02-12
+                time_start:
+                    type: string
+                    format: HH:MM
+                    example: 19:10
     securitySchemes:
         UserToken:
             type: apiKey
@@ -171,4 +181,4 @@ paths:
             responses:
                 '200':
                     description: OK
-                              
+
