@@ -153,11 +153,22 @@ paths:
                                         type: array
                                         items:
                                             $ref: '#/components/schemas/route'
-                                
-      
-                                
-                                
-
-
-
-
+    /add_route:
+        post:
+            description: add new route
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                route:
+                                    $ref: '#/components/schemas/route'
+                            
+            security:
+                - UserToken: [ ]
+            responses:
+                '200':
+                    description: OK
+                              
