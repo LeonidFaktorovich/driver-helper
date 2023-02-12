@@ -21,16 +21,18 @@ class MapController: UIViewController, MKMapViewDelegate {
         super.loadView()
         let net_routes = main_user!.GetMap()
         for net_route in net_routes {
-            print(net_route.owner)
             let route = Route(name: net_route.owner, startCoordinate: net_route.start, finishCoordinate: net_route.finish, initialColor: .green)
-            routes.append(route)
+            if !routes.contains(route) {
+                routes_to_draw.insert(route)
+            }
         }
         DrawRoutes()
         AddTapRecognizer()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 15.0) //- выполнить через 120 сек.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 15.0) //- выполнить через 15 сек.
         { [self] in
            UpdateMap()
         }
+        self.mapView.removeOverlays(self.mapView.overlays)
 
     }
     
@@ -67,8 +69,7 @@ class MapController: UIViewController, MKMapViewDelegate {
         mapView.delegate = self
         mapView.setRegion(MKCoordinateRegion(center: initialLocation, latitudinalMeters: regionRadius, longitudinalMeters: regionRadius), animated: true)
         
-        for i in drawn_routes..<routes.count {
-            let route = routes[i]
+        for route in routes_to_draw {
             mapView.addAnnotation(route.start)
             mapView.addAnnotation(route.finish)
             
@@ -86,7 +87,8 @@ class MapController: UIViewController, MKMapViewDelegate {
                 }
             }
         }
-        drawn_routes = routes.count
+        routes.formUnion(routes_to_draw)
+        routes_to_draw.removeAll()
     }
     
     @IBAction func tapMap(_ sender: UITapGestureRecognizer) {
@@ -103,8 +105,8 @@ class MapController: UIViewController, MKMapViewDelegate {
                 
                 // date - current time
                 let net_route = NetworkRoute(start: lastStartCoordinate, finish: tappedCoordinate, owner: self_name, date: Date())
+                routes.insert(Route(name: self_name, startCoordinate: lastStartCoordinate, finishCoordinate: tappedCoordinate, initialColor: self_color))
                 main_user?.AddRoute(route: net_route)
-                
                 let direction = MKDirections(request: request)
                 
                 direction.calculate { [self] response, error in
@@ -153,12 +155,13 @@ class MapController: UIViewController, MKMapViewDelegate {
     func UpdateMap() {
         let net_routes = main_user!.GetMap()
         for net_route in net_routes {
-            print(net_route.owner)
             let route = Route(name: net_route.owner, startCoordinate: net_route.start, finishCoordinate: net_route.finish, initialColor: .green)
-            routes.append(route)
+            if !routes.contains(route) {
+                routes_to_draw.insert(route)
+            }
         }
         DrawRoutes()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 15.0) //- выполнить через 120 сек.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 15.0) //- выполнить через 15 сек.
         { [self] in
            UpdateMap()
         }
@@ -170,7 +173,7 @@ class Point : NSObject, MKAnnotation {
     let coordinate: CLLocationCoordinate2D
     let color: UIColor
     let text: String?
-    
+
     init(initialCoordinate: CLLocationCoordinate2D, initialColor: UIColor, initialText: String?) {
         self.coordinate = initialCoordinate
         self.color = initialColor
@@ -183,7 +186,22 @@ class PolylineWithColor : MKPolyline {
     var color : UIColor = .blue
 }
 
-class Route {
+class Route : Hashable {
+    static func == (lhs: Route, rhs: Route) -> Bool {
+        return lhs.start.coordinate.latitude == rhs.start.coordinate.latitude &&
+        lhs.start.coordinate.longitude == rhs.start.coordinate.longitude &&
+        lhs.finish.coordinate.latitude == rhs.finish.coordinate.latitude &&
+        lhs.finish.coordinate.longitude == rhs.finish.coordinate.longitude &&
+        lhs.start.text == rhs.start.text
+    }
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(start.coordinate.latitude)
+        hasher.combine(start.coordinate.longitude)
+        hasher.combine(finish.coordinate.latitude)
+        hasher.combine(finish.coordinate.longitude)
+        hasher.combine(start.text)
+    }
+    
     let start: Point
     let finish: Point
     let color : UIColor
@@ -195,7 +213,8 @@ class Route {
     }
 }
 
-var routes: [Route] = [Route(name: "Alina", startCoordinate:  CLLocationCoordinate2D(latitude: 55.1, longitude: 37.2), finishCoordinate: CLLocationCoordinate2D(latitude: 55.5, longitude: 37.3), initialColor: .systemPink),
-                       Route(name: "Maria", startCoordinate: CLLocationCoordinate2D(latitude: 55, longitude: 37), finishCoordinate: CLLocationCoordinate2D(latitude: 56, longitude: 38), initialColor: .purple),
-                       Route(name: "Leonid", startCoordinate: CLLocationCoordinate2D(latitude: 55.8, longitude: 37.6), finishCoordinate:  CLLocationCoordinate2D(latitude: 55.1, longitude: 37.4), initialColor: .systemBlue)]
-var drawn_routes: Int = 0
+//var routes: [Route] = [Route(name: "Alina", startCoordinate:  CLLocationCoordinate2D(latitude: 55.1, longitude: 37.2), finishCoordinate: CLLocationCoordinate2D(latitude: 55.5, longitude: 37.3), initialColor: .systemPink),
+//                       Route(name: "Maria", startCoordinate: CLLocationCoordinate2D(latitude: 55, longitude: 37), finishCoordinate: CLLocationCoordinate2D(latitude: 56, longitude: 38), initialColor: .purple),
+//                       Route(name: "Leonid", startCoordinate: CLLocationCoordinate2D(latitude: 55.8, longitude: 37.6), finishCoordinate:  CLLocationCoordinate2D(latitude: 55.1, longitude: 37.4), initialColor: .systemBlue)]
+var routes: Set<Route> = Set<Route>()
+var routes_to_draw: Set<Route> = Set<Route>()

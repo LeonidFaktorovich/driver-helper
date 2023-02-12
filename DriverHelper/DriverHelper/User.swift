@@ -48,31 +48,6 @@ extension CLLocationCoordinate2D : Codable {
     }
 }
 
-struct MapPoint : Codable {
-    let x: Double
-    let y: Double
-    
-    enum CodingKeys: String, CodingKey {
-        case x = "x"
-        case y = "y"
-    }
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        
-        try container.encode(x, forKey: .x)
-        try container.encode(y, forKey: .y)
-    }
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        x = try container.decode(Double.self, forKey: .x)
-        y = try container.decode(Double.self, forKey: .y)
-    }
-    init(x: Double, y: Double) {
-        self.x = x
-        self.y = y
-    }
-}
-
 struct NetworkRoute : Codable {
     let start: CLLocationCoordinate2D
     let finish: CLLocationCoordinate2D
