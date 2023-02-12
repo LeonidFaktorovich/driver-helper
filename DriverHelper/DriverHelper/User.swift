@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import CoreLocation
 
 extension String {
     func base64Encoded() -> String {
@@ -28,6 +29,100 @@ enum Server : String {
     case port = "5000"
 }
 
+extension CLLocationCoordinate2D : Codable {
+    enum CodingKeys: String, CodingKey {
+        case latitude = "x"
+        case longitude = "y"
+    }
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        try container.encode(latitude, forKey: .latitude)
+        try container.encode(longitude, forKey: .longitude)
+    }
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.init()
+        self.latitude = try container.decode(Double.self, forKey: .latitude)
+        self.longitude = try container.decode(Double.self, forKey: .longitude)
+    }
+}
+
+struct MapPoint : Codable {
+    let x: Double
+    let y: Double
+    
+    enum CodingKeys: String, CodingKey {
+        case x = "x"
+        case y = "y"
+    }
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        try container.encode(x, forKey: .x)
+        try container.encode(y, forKey: .y)
+    }
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        x = try container.decode(Double.self, forKey: .x)
+        y = try container.decode(Double.self, forKey: .y)
+    }
+    init(x: Double, y: Double) {
+        self.x = x
+        self.y = y
+    }
+}
+
+struct NetworkRoute : Codable {
+    let start: CLLocationCoordinate2D
+    let finish: CLLocationCoordinate2D
+    let owner: String
+    let date_start: String
+    let time_start: String
+    
+    enum CodingKeys: String, CodingKey {
+        case start = "start"
+        case finish = "finish"
+        case owner = "owner"
+        case date_start = "date_start"
+        case time_start = "time_start"
+    }
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        try container.encode(start, forKey: .start)
+        try container.encode(finish, forKey: .finish)
+        
+        let base_owner: String = owner.base64Encoded()
+        try container.encode(base_owner, forKey: .owner)
+        
+        let base_date_start: String = date_start.base64Encoded()
+        try container.encode(base_date_start, forKey: .date_start)
+        
+        let base_time_start: String = time_start.base64Encoded()
+        try container.encode(base_time_start, forKey: .time_start)
+    }
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        start = try container.decode(CLLocationCoordinate2D.self, forKey: .start)
+        finish = try container.decode(CLLocationCoordinate2D.self, forKey: .finish)
+        owner = try container.decode(String.self, forKey: .owner).base64Decoded()
+        date_start = try container.decode(String.self, forKey: .date_start).base64Decoded()
+        time_start = try container.decode(String.self, forKey: .time_start).base64Decoded()
+    }
+    init(start: CLLocationCoordinate2D, finish: CLLocationCoordinate2D, owner: String, date: Date) {
+        self.start = start
+        self.finish = finish
+        self.owner = owner
+        
+        let date_formatter = DateFormatter()
+        date_formatter.dateFormat = "yyyy-MM-dd"
+        self.date_start = date_formatter.string(from: date)
+        let time_formatter = DateFormatter()
+        time_formatter.dateFormat = "HH:mm"
+        self.time_start = time_formatter.string(from: date)
+    }
+}
 
 class User {
     struct PersonData : Codable {
@@ -90,7 +185,10 @@ class User {
         data = PersonData(login:login, password: password)
         token = nil
     }
-    
+    func SetTokenFromCache() -> Void {
+        guard let cur_token: String = GetToken() else { return }
+        token = Token(token: cur_token)
+    }
     
 }
 
@@ -198,10 +296,13 @@ extension User {
         let session = URLSession.shared
         var routes: [NetworkRoute] = []
         
+        let semaphore = DispatchSemaphore(value: 0)
         let task = session.dataTask(with: request) { data, response, error in
             routes = try! JSONDecoder().decode([NetworkRoute].self, from: data!);
+            semaphore.signal()
         }
         task.resume()
+        _ = semaphore.wait(timeout: DispatchTime.distantFuture)
         return routes
     }
     func AddRoute(route: NetworkRoute) -> Void {
