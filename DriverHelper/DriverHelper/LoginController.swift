@@ -26,4 +26,29 @@ class LoginController : UIViewController {
         present(reg_controller, animated: true)
         
     }
+    @IBAction func login(_ sender: Any) {
+        if login_text.text == nil || login_text.text == "" {
+//            error_label.text = "Login must be not empty"
+//            error_label.textColor = UIColor.red
+            return;
+        }
+        if password_text.text == nil || password_text.text!.count <= 3 {
+//            error_label.text = "Password len must be > 3 characters"
+//            error_label.textColor = UIColor.red
+            return;
+        }
+//        error_label.text = ""
+        
+        main_user = User(login:login_text.text!, password:password_text.text!)
+        let error_msg = main_user!.Login()
+        if error_msg != nil {
+//            error_label.text = error_msg
+//            error_label.textColor = UIColor.red
+        } else {
+            let main_storyboard = UIStoryboard(name: "MainBar", bundle: nil)
+            let main_bar = main_storyboard.instantiateViewController(withIdentifier: "MainBar") as! MainBarController
+            main_bar.modalPresentationStyle = .fullScreen
+            present(main_bar, animated: true)
+        }
+    }
 }

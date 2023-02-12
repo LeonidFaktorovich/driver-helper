@@ -35,6 +35,9 @@
                                 <buttonConfiguration key="configuration" style="tinted" title="Sign in">
                                     <fontDescription key="titleFontDescription" type="system" weight="medium" pointSize="21"/>
                                 </buttonConfiguration>
+                                <connections>
+                                    <action selector="login:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="wwo-uO-T6P"/>
+                                </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Login" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1Oi-iH-Z4o">
                                 <rect key="frame" x="111" y="370" width="65" height="47"/>

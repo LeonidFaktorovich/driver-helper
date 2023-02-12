@@ -109,9 +109,11 @@ extension User {
         
         // for async use DispatchQueue.main.async {}
         var error_msg: String?
+        let semaphore = DispatchSemaphore(value: 0)
         let task = session.dataTask(with: request) { data, response, error in
             if let httpResponse = response as? HTTPURLResponse {
                 guard let token_data = data else { return }
+                print(httpResponse.statusCode)
                 if httpResponse.statusCode == 200 {
                     self.token = try! JSONDecoder().decode(Token.self, from: token_data)
                     UserSave(user: main_user!)
@@ -123,8 +125,10 @@ extension User {
                     error_msg = "Uknown error"
                 }
             }
+            semaphore.signal()
         }
         task.resume()
+        _ = semaphore.wait(timeout: DispatchTime.distantFuture)
         return error_msg
         
     }
@@ -139,6 +143,7 @@ extension User {
         let session = URLSession.shared
         
         var error_msg: String?
+        let semaphore = DispatchSemaphore(value: 0)
         let task = session.dataTask(with: request) { data, response, error in
             if let httpResponse = response as? HTTPURLResponse {
                 guard let token_data = data else { return }
@@ -153,8 +158,10 @@ extension User {
                     error_msg = "Uknown error"
                 }
             }
+            semaphore.signal()
         }
         task.resume()
+        _ = semaphore.wait(timeout: DispatchTime.distantFuture)
         return error_msg
     }
     func AddFriend(friend_login: String) -> String? {
@@ -168,6 +175,7 @@ extension User {
         let session = URLSession.shared
         
         var error_msg: String?
+        let semaphore = DispatchSemaphore(value: 0)
         let task = session.dataTask(with: request) { data, response, error in
             if let httpResponse = response as? HTTPURLResponse {
                 if httpResponse.statusCode == 404 {
@@ -176,11 +184,40 @@ extension User {
                     error_msg = "Uknown error"
                 }
             }
+            semaphore.signal()
         }
         task.resume()
+        _ = semaphore.wait(timeout: DispatchTime.distantFuture)
         return error_msg
     }
-}
+    func GetMap() -> [NetworkRoute] {
+        let cur_url = MakeUrl(path: Server.handler_map.rawValue)
+        var request = URLRequest(url: cur_url)
+        request.httpMethod = "GET"
+        request.allHTTPHeaderFields = ["Content-Type" : "application/json", "token" : token!.token.base64Encoded()]
+        let session = URLSession.shared
+        var routes: [NetworkRoute] = []
+        
+        let task = session.dataTask(with: request) { data, response, error in
+            routes = try! JSONDecoder().decode([NetworkRoute].self, from: data!);
+        }
+        task.resume()
+        return routes
+    }
+    func AddRoute(route: NetworkRoute) -> Void {
+        let cur_url = MakeUrl(path: Server.handler_make_route.rawValue)
+        var request = URLRequest(url: cur_url)
+        request.httpMethod = "POST"
+        request.allHTTPHeaderFields = ["Content-Type" : "application/json", "token" : token!.token.base64Encoded()]
+        let httpBody = try! JSONEncoder().encode(route)
+        request.httpBody = httpBody
+        
+        let session = URLSession.shared
+        let task = session.dataTask(with: request) { data, response, error in
+        }
+        task.resume()
+    }
+ }
 
 var main_user: User?
 

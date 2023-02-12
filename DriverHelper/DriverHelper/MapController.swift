@@ -3,15 +3,80 @@ import UIKit
 import MapKit
 import Contacts
 
-struct MapPoint {
+struct MapPoint : Codable {
     let x: Double
     let y: Double
+    
+    enum CodingKeys: String, CodingKey {
+        case x = "x"
+        case y = "y"
+    }
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        try container.encode(x, forKey: .x)
+        try container.encode(y, forKey: .y)
+    }
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        x = try container.decode(Double.self, forKey: .x)
+        y = try container.decode(Double.self, forKey: .y)
+    }
+    init(x: Double, y: Double) {
+        self.x = x
+        self.y = y
+    }
 }
 
-struct NetworkRoute {
+struct NetworkRoute : Codable {
     let start: MapPoint
     let finish: MapPoint
     let owner: String
+    let date_start: String
+    let time_start: String
+    
+    enum CodingKeys: String, CodingKey {
+        case start = "start"
+        case finish = "finish"
+        case owner = "owner"
+        case date_start = "date_start"
+        case time_start = "time_start"
+    }
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        try container.encode(start, forKey: .start)
+        try container.encode(finish, forKey: .finish)
+        
+        let base_owner: String = owner.base64Encoded()
+        try container.encode(base_owner, forKey: .owner)
+        
+        let base_date_start: String = date_start.base64Encoded()
+        try container.encode(base_date_start, forKey: .date_start)
+        
+        let base_time_start: String = time_start.base64Encoded()
+        try container.encode(base_time_start, forKey: .time_start)
+    }
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        start = try container.decode(MapPoint.self, forKey: .start)
+        finish = try container.decode(MapPoint.self, forKey: .finish)
+        owner = try container.decode(String.self, forKey: .owner).base64Decoded()
+        date_start = try container.decode(String.self, forKey: .date_start).base64Decoded()
+        time_start = try container.decode(String.self, forKey: .time_start).base64Decoded()
+    }
+    init(start: MapPoint, finish: MapPoint, owner: String, date: Date) {
+        self.start = start
+        self.finish = finish
+        self.owner = owner
+        
+        let date_formatter = DateFormatter()
+        date_formatter.dateFormat = "yyyy-MM-dd"
+        self.date_start = date_formatter.string(from: date)
+        let time_formatter = DateFormatter()
+        time_formatter.dateFormat = "HH:mm"
+        self.time_start = time_formatter.string(from: date)
+    }
 }
 
 class MapController: UIViewController, MKMapViewDelegate {
@@ -98,6 +163,16 @@ class MapController: UIViewController, MKMapViewDelegate {
                 request.source = MKMapItem(placemark: MKPlacemark(coordinate: lastStartCoordinate))
                 request.destination = MKMapItem(placemark: MKPlacemark(coordinate: tappedCoordinate))
                 request.transportType = .automobile
+                
+                let x_start: Double = lastStartCoordinate.latitude
+                let y_start: Double = lastStartCoordinate.longitude
+                let x_finish: Double = tappedCoordinate.latitude
+                let y_finish: Double = tappedCoordinate.longitude
+                let start_point = MapPoint(x: x_start, y: y_start)
+                let finish_point = MapPoint(x: x_finish, y: y_finish)
+                let net_route = NetworkRoute(start: start_point, finish: finish_point, owner: self_name, date: Date())
+                main_user?.AddRoute(route: net_route)
+                
                 let direction = MKDirections(request: request)
                 
                 direction.calculate { [self] response, error in
