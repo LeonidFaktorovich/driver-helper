@@ -29,6 +29,7 @@
                         <color key="badgeColor" systemColor="tintColor"/>
                     </tabBarItem>
                     <connections>
+                        <outlet property="bottom_field" destination="TqZ-kw-gwF" id="jba-m1-4oC"/>
                         <outlet property="mapView" destination="8ZV-hz-tm1" id="bTf-1g-OVM"/>
                     </connections>
                 </viewController>
