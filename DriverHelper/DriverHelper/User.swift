@@ -160,6 +160,15 @@ class User {
         data = PersonData(login:login, password: password)
         token = nil
     }
+    func LoginFromCache() -> Void {
+        guard let cur_login: String = GetLogin() else { return }
+        guard let cur_password: String = GetPassword() else { return }
+        guard let cur_token: String = GetToken() else { return }
+        
+        data.login = cur_login
+        data.password = cur_password
+        token = Token(token: cur_token)
+    }
     func SetTokenFromCache() -> Void {
         guard let cur_token: String = GetToken() else { return }
         token = Token(token: cur_token)

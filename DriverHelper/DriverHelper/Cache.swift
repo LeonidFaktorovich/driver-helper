@@ -27,6 +27,16 @@ func GetToken() -> String? {
     return defaults.string(forKey: DataKeys.token.rawValue)
 }
 
+func GetLogin() -> String? {
+    let defaults = UserDefaults.standard
+    return defaults.string(forKey: DataKeys.login.rawValue)
+}
+
+func GetPassword() -> String? {
+    let defaults = UserDefaults.standard
+    return defaults.string(forKey: DataKeys.password.rawValue)
+}
+
 func UserExit() -> Void {
     let defaults = UserDefaults.standard
     

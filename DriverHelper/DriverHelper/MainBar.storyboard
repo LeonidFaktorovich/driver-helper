@@ -44,14 +44,28 @@
                     <view key="view" contentMode="scaleToFill" id="4zo-23-qTT">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NgV-iu-gzf">
+                                <rect key="frame" x="307" y="44" width="87" height="48"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Log out"/>
+                                <connections>
+                                    <action selector="LogOut:" destination="wHW-cF-5cd" eventType="touchUpInside" id="Dy0-UF-A9B"/>
+                                </connections>
+                            </button>
+                        </subviews>
                         <viewLayoutGuide key="safeArea" id="XYn-ee-MnP"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
                     <tabBarItem key="tabBarItem" title="Settings" image="settings" id="g1r-ph-Hi0"/>
+                    <connections>
+                        <outlet property="log_out_button" destination="NgV-iu-gzf" id="uuy-IP-FQS"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="R23-4z-QTH" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-200" y="669"/>
+            <point key="canvasLocation" x="-200.00000000000003" y="668.97321428571422"/>
         </scene>
         <!--Friends-->
         <scene sceneID="hfF-75-OmH">
