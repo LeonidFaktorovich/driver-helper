@@ -48,7 +48,7 @@ extension CLLocationCoordinate2D : Codable {
     }
 }
 
-struct NetworkRoute : Codable {
+struct RouteData : Codable {
     let start: CLLocationCoordinate2D
     let finish: CLLocationCoordinate2D
     let owner: String
@@ -96,6 +96,44 @@ struct NetworkRoute : Codable {
         let time_formatter = DateFormatter()
         time_formatter.dateFormat = "HH:mm"
         self.time_start = time_formatter.string(from: date)
+    }
+}
+
+struct NetworkRoute : Codable {
+    var route: RouteData
+    enum CodingKeys: String, CodingKey {
+        case route = "route"
+    }
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        try container.encode(route, forKey: .route)
+    }
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        route = try container.decode(RouteData.self, forKey: .route)
+    }
+    init(start: CLLocationCoordinate2D, finish: CLLocationCoordinate2D, owner: String, date: Date) {
+        route = RouteData(start: start, finish: finish, owner: owner, date: date)
+    }
+}
+
+struct NetworkRoutes : Codable {
+    var routes: [RouteData]
+    enum CodingKeys: String, CodingKey {
+        case routes = "routes"
+    }
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        try container.encode(routes, forKey: .routes)
+    }
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        routes = try container.decode([RouteData].self, forKey: .routes)
+    }
+    init() {
+        routes = []
     }
 }
 
@@ -272,17 +310,17 @@ extension User {
         _ = semaphore.wait(timeout: DispatchTime.distantFuture)
         return error_msg
     }
-    func GetMap() -> [NetworkRoute] {
+    func GetMap() -> NetworkRoutes {
         let cur_url = MakeUrl(path: Server.handler_map.rawValue)
         var request = URLRequest(url: cur_url)
         request.httpMethod = "GET"
         request.allHTTPHeaderFields = ["Content-Type" : "application/json", "token" : token!.token.base64Encoded()]
         let session = URLSession.shared
-        var routes: [NetworkRoute] = []
+        var routes = NetworkRoutes()
         
         let semaphore = DispatchSemaphore(value: 0)
         let task = session.dataTask(with: request) { data, response, error in
-            routes = try! JSONDecoder().decode([NetworkRoute].self, from: data!);
+            routes = try! JSONDecoder().decode(NetworkRoutes.self, from: data!);
             semaphore.signal()
         }
         task.resume()
@@ -290,6 +328,8 @@ extension User {
         return routes
     }
     func AddRoute(route: NetworkRoute) -> Void {
+        print(route.route.date_start)
+        print(route.route.time_start)
         let cur_url = MakeUrl(path: Server.handler_make_route.rawValue)
         var request = URLRequest(url: cur_url)
         request.httpMethod = "POST"

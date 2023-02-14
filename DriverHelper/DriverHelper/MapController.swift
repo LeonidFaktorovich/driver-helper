@@ -41,7 +41,7 @@ class MapController: UIViewController, MKMapViewDelegate {
         self_name = GetLogin()!
         self_color = ColorFromName(name: self_name)
         let net_routes = main_user!.GetMap()
-        for net_route in net_routes {
+        for net_route in net_routes.routes {
             let route = Route(name: net_route.owner, startCoordinate: net_route.start, finishCoordinate: net_route.finish, initialColor: ColorFromName(name: net_route.owner))
             
             routes_lock.lock()
@@ -219,7 +219,7 @@ class MapController: UIViewController, MKMapViewDelegate {
         update_lock.unlock()
         
         let net_routes = main_user!.GetMap()
-        for net_route in net_routes {
+        for net_route in net_routes.routes {
             let route = Route(name: net_route.owner, startCoordinate: net_route.start, finishCoordinate: net_route.finish, initialColor: ColorFromName(name: net_route.owner))
             
             routes_lock.lock()
