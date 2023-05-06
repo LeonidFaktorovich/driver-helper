@@ -53,7 +53,6 @@ class MapController: UIViewController, MKMapViewDelegate {
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        print(3)
 
         User.main_user?.routes_controller_.RepeatUpdateAndDraw(map_view: mapView, period: 10.0)
         
@@ -141,7 +140,9 @@ class MapController: UIViewController, MKMapViewDelegate {
                 DispatchQueue.global().async {
                     User.main_user?.AddRoute(route: net_route)
                 }
-                Routes.DrawOne(map_view: mapView, route: Route(name: self_name, startCoordinate: lastStartCoordinate, finishCoordinate: tappedCoordinate, initialColor: self_color))
+                let new_route = Route(name: self_name, startCoordinate: lastStartCoordinate, finishCoordinate: tappedCoordinate, initialColor: self_color)
+                Routes.DrawOne(map_view: mapView, route: new_route)
+                User.main_user?.routes_controller_.Insert(route: new_route)
 //                routes_lock.lock()
 //
 //                routes.insert(Route(name: self_name, startCoordinate: lastStartCoordinate, finishCoordinate: tappedCoordinate, initialColor: self_color))
@@ -353,7 +354,6 @@ class Routes {
     static func RemoveOne(map_view: MKMapView, route: Route) {
         map_view.removeAnnotation(route.start)
         map_view.removeAnnotation(route.finish)
-        
         let request = MKDirections.Request()
         request.source = MKMapItem(placemark: MKPlacemark(coordinate: route.start.coordinate))
         request.destination = MKMapItem(placemark: MKPlacemark(coordinate: route.finish.coordinate))
@@ -361,11 +361,10 @@ class Routes {
         let direction = MKDirections(request: request)
         
         direction.calculate { [] response, error in
-            if let routeResponse = response?.routes {
-                let polyline = PolylineWithColor(points: routeResponse[0].polyline.points(), count: routeResponse[0].polyline.pointCount)
-                polyline.color = route.color
-                map_view.removeOverlay(polyline)
+            guard let route = response?.routes.first else {
+                return
             }
+            map_view.removeOverlay(route.polyline)
         }
     }
     func Draw(map_view: MKMapView) {
@@ -391,11 +390,13 @@ class RoutesController {
     private var need_update_and_draw_: Bool
     private var mutex_update_and_draw_: NSLock
     private var async_task_: Bool
+    private var mutex_update_: NSLock
     init() {
         routes_ = Routes()
         need_update_and_draw_ = false
         async_task_ = false
         mutex_update_and_draw_ = NSLock()
+        mutex_update_ = NSLock()
     }
     private func Update() -> Void {
         let net_routes = User.main_user!.GetMap()
@@ -406,10 +407,22 @@ class RoutesController {
         }
         routes_.Assign(routes_set: routes_set)
     }
+    func Insert(route: Route) {
+        mutex_update_.lock()
+        routes_.Insert(route: route)
+        mutex_update_.unlock()
+    }
+    func Erase(route: Route) {
+        mutex_update_.lock()
+        routes_.Erase(route: route)
+        mutex_update_.unlock()
+    }
     func StartRepeatAsyncUpdateAndDraw(map_view: MKMapView, period: Double) -> Void {
         DispatchQueue.global(qos: .default).asyncAfter(deadline: .now() + period) { [self] in
+            self.mutex_update_.lock()
             self.Update()
             self.routes_.Draw(map_view: map_view)
+            self.mutex_update_.unlock()
             
             self.mutex_update_and_draw_.lock()
             guard self.need_update_and_draw_ else {
