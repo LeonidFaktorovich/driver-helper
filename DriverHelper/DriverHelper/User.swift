@@ -140,7 +140,7 @@ struct NetworkRoutes : Codable {
 
 class User {
     static var main_user: User?
-    private var routes_: Routes
+    var routes_controller_: RoutesController
     
     struct PersonData : Codable {
         var login: String
@@ -202,7 +202,7 @@ class User {
     init(login: String, password: String) {
         data = PersonData(login:login, password: password)
         token = nil
-        routes_ = Routes()
+        routes_controller_ = RoutesController()
     }
     func LoginFromCache() -> Void {
         guard let cur_login: String = GetLogin() else { return }

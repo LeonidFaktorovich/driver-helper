@@ -3,14 +3,14 @@ import UIKit
 import MapKit
 import Contacts
 
-var routes: Set<Route> = Set<Route>()
-
-let routes_lock = NSLock()
-
-
-var routes_to_draw: Set<Route> = Set<Route>()
-
-let routes_to_draw_lock = NSLock()
+//var routes: Set<Route> = Set<Route>()
+//
+//let routes_lock = NSLock()
+//
+//
+//var routes_to_draw: Set<Route> = Set<Route>()
+//
+//let routes_to_draw_lock = NSLock()
 
 
 class MapController: UIViewController, MKMapViewDelegate {
@@ -31,59 +31,42 @@ class MapController: UIViewController, MKMapViewDelegate {
     var need_to_update = false
     
     override func loadView() {
-        update_lock.lock()
-        
-        need_to_update = true
-        
-        update_lock.unlock()
+//        update_lock.lock()
+//
+//        need_to_update = true
+//
+//        update_lock.unlock()
         
         super.loadView()
         self_name = GetLogin()!
         self_color = ColorFromName(name: self_name)
-        let net_routes = User.main_user!.GetMap()
-        for net_route in net_routes.routes {
-            let route = Route(name: net_route.owner, startCoordinate: net_route.start, finishCoordinate: net_route.finish, initialColor: ColorFromName(name: net_route.owner))
-
-            routes_lock.lock()
-            routes_to_draw_lock.lock()
-
-            if !routes.contains(route) {
-                routes_to_draw.insert(route)
-            }
-
-            routes_to_draw_lock.unlock()
-            routes_lock.unlock()
-        }
-        DrawRoutes()
+        User.main_user?.routes_controller_.Update()
+        User.main_user?.routes_controller_.Draw(map_view: mapView)
+//        RepeatDraw()
         AddTapRecognizer()
-        RepeatUpdateMap()
-        
+//        RepeatUpdateMap()
+        User.main_user?.routes_controller_.RepeatUpdateAndDraw(map_view: mapView, period: 10.0)
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        mapView.delegate = self
+        mapView.setRegion(MKCoordinateRegion(center: initialLocation, latitudinalMeters: regionRadius, longitudinalMeters: regionRadius), animated: true)
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        update_lock.lock()
-        
-        if !need_to_update {
-            need_to_update = true
-            update_lock.unlock()
-            RepeatUpdateMap()
-        } else {
-            need_to_update = true
-            update_lock.unlock()
-        }
-        
+        print(3)
+
+        User.main_user?.routes_controller_.RepeatUpdateAndDraw(map_view: mapView, period: 10.0)
         
     }
     override func viewWillDisappear(_ animated: Bool) {
-        update_lock.lock()
-        
-        need_to_update = false
-        
-        update_lock.unlock()
+//        update_lock.lock()
+//
+//        need_to_update = false
+//
+//        update_lock.unlock()
+        User.main_user?.routes_controller_.CancelRepeatUpdateAndDraw()
     }
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
@@ -111,38 +94,38 @@ class MapController: UIViewController, MKMapViewDelegate {
         return pr
     }
     
-    func DrawRoutes() {
-        mapView.delegate = self
-        mapView.setRegion(MKCoordinateRegion(center: initialLocation, latitudinalMeters: regionRadius, longitudinalMeters: regionRadius), animated: true)
-        
-        for route in routes_to_draw {
-//            mapView.addAnnotation(route.start)
-//            mapView.addAnnotation(route.finish)
+//    func DrawRoutes() {
+//        mapView.delegate = self
+//        mapView.setRegion(MKCoordinateRegion(center: initialLocation, latitudinalMeters: regionRadius, longitudinalMeters: regionRadius), animated: true)
 //
-//            let request = MKDirections.Request()
-//            request.source = MKMapItem(placemark: MKPlacemark(coordinate: route.start.coordinate))
-//            request.destination = MKMapItem(placemark: MKPlacemark(coordinate: route.finish.coordinate))
-//            request.transportType = .automobile
-//            let direction = MKDirections(request: request)
+//        for route in routes_to_draw {
+////            mapView.addAnnotation(route.start)
+////            mapView.addAnnotation(route.finish)
+////
+////            let request = MKDirections.Request()
+////            request.source = MKMapItem(placemark: MKPlacemark(coordinate: route.start.coordinate))
+////            request.destination = MKMapItem(placemark: MKPlacemark(coordinate: route.finish.coordinate))
+////            request.transportType = .automobile
+////            let direction = MKDirections(request: request)
+////
+////            direction.calculate { [self] response, error in
+////                if let routeResponse = response?.routes {
+////                    let polyline = PolylineWithColor(points: routeResponse[0].polyline.points(), count: routeResponse[0].polyline.pointCount)
+////                    polyline.color = route.color
+////                    self.mapView.addOverlay(polyline)
+////                }
+////            }
+//            Routes.DrawOne(map_view: mapView, route: route)
+//        }
+//        routes_lock.lock()
+//        routes_to_draw_lock.lock()
 //
-//            direction.calculate { [self] response, error in
-//                if let routeResponse = response?.routes {
-//                    let polyline = PolylineWithColor(points: routeResponse[0].polyline.points(), count: routeResponse[0].polyline.pointCount)
-//                    polyline.color = route.color
-//                    self.mapView.addOverlay(polyline)
-//                }
-//            }
-            Routes.DrawOne(map_view: mapView, route: route)
-        }
-        routes_lock.lock()
-        routes_to_draw_lock.lock()
-        
-        routes.formUnion(routes_to_draw)
-        routes_to_draw.removeAll()
-        
-        routes_lock.unlock()
-        routes_to_draw_lock.unlock()
-    }
+//        routes.formUnion(routes_to_draw)
+//        routes_to_draw.removeAll()
+//
+//        routes_lock.unlock()
+//        routes_to_draw_lock.unlock()
+//    }
     
     @IBAction func tapMap(_ sender: UITapGestureRecognizer) {
         if sender.state == .ended {
@@ -157,23 +140,24 @@ class MapController: UIViewController, MKMapViewDelegate {
                 request.transportType = .automobile
                 
                 let net_route = NetworkRoute(start: lastStartCoordinate, finish: tappedCoordinate, owner: self_name, date: Date())
-                
-                routes_lock.lock()
-                
-                routes.insert(Route(name: self_name, startCoordinate: lastStartCoordinate, finishCoordinate: tappedCoordinate, initialColor: self_color))
-                
-                routes_lock.unlock()
-                
                 User.main_user?.AddRoute(route: net_route)
-                let direction = MKDirections(request: request)
-                
-                direction.calculate { [self] response, error in
-                    if let routeResponse = response?.routes {
-                        let polyline = PolylineWithColor(points: routeResponse[0].polyline.points(), count: routeResponse[0].polyline.pointCount)
-                        polyline.color = self_color
-                        self.mapView.addOverlay(polyline)
-                    }
-                }
+                User.main_user?.routes_controller_.Update()
+                User.main_user?.routes_controller_.Draw(map_view: mapView)
+//                routes_lock.lock()
+//
+//                routes.insert(Route(name: self_name, startCoordinate: lastStartCoordinate, finishCoordinate: tappedCoordinate, initialColor: self_color))
+//
+//                routes_lock.unlock()
+//
+//                let direction = MKDirections(request: request)
+//
+//                direction.calculate { [self] response, error in
+//                    if let routeResponse = response?.routes {
+//                        let polyline = PolylineWithColor(points: routeResponse[0].polyline.points(), count: routeResponse[0].polyline.pointCount)
+//                        polyline.color = self_color
+//                        self.mapView.addOverlay(polyline)
+//                    }
+//                }
             } else {
                 point = Point(initialCoordinate: tappedCoordinate, initialColor: self_color, initialText: String(self_name[self_name.startIndex]))
                 lastStartCoordinate = tappedCoordinate
@@ -209,36 +193,36 @@ class MapController: UIViewController, MKMapViewDelegate {
 
         tapRecognizer.require(toFail: doubleTapRecognizer)
     }
-    func UpdateMap() {
-        update_lock.lock()
-        if !need_to_update {
-            update_lock.unlock()
-            return
-        }
-        update_lock.unlock()
-        let net_routes = User.main_user!.GetMap()
-        for net_route in net_routes.routes {
-            let route = Route(name: net_route.owner, startCoordinate: net_route.start, finishCoordinate: net_route.finish, initialColor: ColorFromName(name: net_route.owner))
-            
-            routes_lock.lock()
-            routes_to_draw_lock.lock()
-            
-            if !routes.contains(route) {
-                routes_to_draw.insert(route)
-            }
-            
-            routes_to_draw_lock.unlock()
-            routes_lock.unlock()
-        }
-        DrawRoutes()
-        RepeatUpdateMap()
-    }
-    func RepeatUpdateMap() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 15.0) // - выполнить через 15 сек.
-        { [self] in
-           UpdateMap()
-        }
-    }
+//    func UpdateMap() {
+//        update_lock.lock()
+//        if !need_to_update {
+//            update_lock.unlock()
+//            return
+//        }
+//        update_lock.unlock()
+//        let net_routes = User.main_user!.GetMap()
+//        for net_route in net_routes.routes {
+//            let route = Route(name: net_route.owner, startCoordinate: net_route.start, finishCoordinate: net_route.finish, initialColor: ColorFromName(name: net_route.owner))
+//
+//            routes_lock.lock()
+//            routes_to_draw_lock.lock()
+//
+//            if !routes.contains(route) {
+//                routes_to_draw.insert(route)
+//            }
+//
+//            routes_to_draw_lock.unlock()
+//            routes_lock.unlock()
+//        }
+//        DrawRoutes()
+//        RepeatUpdateMap()
+//    }
+//    func RepeatUpdateMap() {
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 15.0) // - выполнить через 15 сек.
+//        { [self] in
+//           UpdateMap()
+//        }
+//    }
 }
 
 func ColorFromName(name: String) -> UIColor {
@@ -328,32 +312,18 @@ class Routes {
         drawn_routes_ = Set<Route>()
         new_routes_ = Set<Route>()
         deleted_routes_ = Set<Route>()
-        mutex_drawn_routes_ = NSLock()
-        mutex_new_routes_ = NSLock()
-        mutex_deleted_routes_ = NSLock()
     }
     func Insert(route: Route) {
-        mutex_deleted_routes_.lock()
         deleted_routes_.remove(route)
-        mutex_deleted_routes_.unlock()
         
-        mutex_new_routes_.lock()
         new_routes_.insert(route)
-        mutex_new_routes_.unlock()
     }
     func Erase(route: Route) {
-        mutex_new_routes_.lock()
         new_routes_.remove(route)
-        mutex_new_routes_.unlock()
         
-        mutex_deleted_routes_.lock()
         deleted_routes_.insert(route)
-        mutex_deleted_routes_.unlock()
     }
     func Assign(routes_set: Set<Route>) {
-        mutex_new_routes_.lock()
-        mutex_deleted_routes_.lock()
-        mutex_drawn_routes_.lock()
         
         let to_add = routes_set.subtracting(drawn_routes_)
         new_routes_ = new_routes_.union(to_add)
@@ -362,10 +332,6 @@ class Routes {
         let to_delete = drawn_routes_.subtracting(routes_set)
         deleted_routes_ = deleted_routes_.union(to_delete)
         new_routes_ = new_routes_.subtracting(to_delete)
-
-        mutex_drawn_routes_.unlock()
-        mutex_deleted_routes_.unlock()
-        mutex_new_routes_.unlock()
     }
     static func DrawOne(map_view: MKMapView, route: Route) {
         map_view.addAnnotation(route.start)
@@ -404,51 +370,33 @@ class Routes {
         }
     }
     func Draw(map_view: MKMapView) {
-        mutex_new_routes_.lock()
         for route in new_routes_ {
             Routes.DrawOne(map_view: map_view, route: route)
         }
-        mutex_new_routes_.unlock()
-        
-        mutex_deleted_routes_.lock()
         for route in deleted_routes_ {
             Routes.RemoveOne(map_view: map_view, route: route)
         }
-        mutex_deleted_routes_.unlock()
-        
-        mutex_new_routes_.lock()
-        mutex_deleted_routes_.lock()
-        mutex_drawn_routes_.lock()
         
         drawn_routes_ = drawn_routes_.union(new_routes_)
         drawn_routes_ = drawn_routes_.subtracting(deleted_routes_)
         new_routes_.removeAll()
         deleted_routes_.removeAll()
-        
-        mutex_drawn_routes_.unlock()
-        mutex_deleted_routes_.unlock()
-        mutex_new_routes_.unlock()
     }
-    private var mutex_drawn_routes_: NSLock
     private var drawn_routes_: Set<Route>
-    private var mutex_new_routes_: NSLock
     private var new_routes_: Set<Route>
-    private var mutex_deleted_routes_: NSLock
     private var deleted_routes_: Set<Route>
 }
 
 class RoutesController {
     private var routes_: Routes
-    private var need_to_update_: Bool
-    private var mutex_update_: NSLock
-    private var need_to_draw_: Bool
-    private var mutex_draw_: NSLock
+    private var need_update_and_draw_: Bool
+    private var mutex_update_and_draw_: NSLock
+    private var async_task_: Bool
     init() {
         routes_ = Routes()
-        need_to_update_ = false
-        mutex_update_ = NSLock()
-        need_to_draw_ = false
-        mutex_draw_ = NSLock()
+        need_update_and_draw_ = false
+        async_task_ = false
+        mutex_update_and_draw_ = NSLock()
     }
     func Update() -> Void {
         let net_routes = User.main_user!.GetMap()
@@ -459,41 +407,42 @@ class RoutesController {
         }
         routes_.Assign(routes_set: routes_set)
     }
-    func StartRepeatAsyncUpdate(period: Double) -> Void {
-        DispatchQueue.main.asyncAfter(deadline: .now() + period) { [self] in
+    func StartRepeatAsyncUpdateAndDraw(map_view: MKMapView, period: Double) -> Void {
+        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + period) { [self] in
             self.Update()
-            
-            var need_to_update = false
-            self.mutex_update_.lock()
-            need_to_update = self.need_to_update_
-            self.mutex_update_.unlock()
-            
-            if need_to_update {
-                self.StartRepeatAsyncUpdate(period: period)
-            }
-        }
-    }
-    func RepeatUpdate(period: Double) -> Void {
-        need_to_update_ = true
-        StartRepeatAsyncUpdate(period: period)
-    }
-    func StartRepeatAsyncDraw(map_view: MKMapView, period: Double) -> Void {
-        DispatchQueue.main.asyncAfter(deadline: .now() + period) { [self] in
             self.routes_.Draw(map_view: map_view)
             
-            var need_to_draw = false
-            self.mutex_draw_.lock()
-            need_to_draw = self.need_to_draw_
-            self.mutex_draw_.unlock()
-            
-            if need_to_draw {
-                self.StartRepeatAsyncDraw(map_view: map_view, period: period)
+            self.mutex_update_and_draw_.lock()
+            guard self.need_update_and_draw_ else {
+                self.async_task_ = false
+                self.mutex_update_and_draw_.unlock()
+                return
             }
+            self.mutex_update_and_draw_.unlock()
+            self.StartRepeatAsyncUpdateAndDraw(map_view: map_view, period: period)
         }
     }
-    func RepeatDraw(map_view: MKMapView, period: Double) -> Void {
-        need_to_draw_ = true
-        StartRepeatAsyncDraw(map_view: map_view, period: period)
+    func Draw(map_view: MKMapView) -> Void {
+        self.routes_.Draw(map_view: map_view)
+    }
+    func RepeatUpdateAndDraw(map_view: MKMapView, period: Double) -> Void {
+        mutex_update_and_draw_.lock()
+        need_update_and_draw_ = true
+        if !async_task_ {
+            mutex_update_and_draw_.unlock()
+            self.async_task_ = true
+            Update()
+            Draw(map_view: map_view)
+            StartRepeatAsyncUpdateAndDraw(map_view: map_view, period: period)
+            return
+        }
+        
+        mutex_update_and_draw_.unlock()
+    }
+    func CancelRepeatUpdateAndDraw() -> Void {
+        mutex_update_and_draw_.lock()
+        need_update_and_draw_ = false
+        mutex_update_and_draw_.unlock()
     }
 }
 
