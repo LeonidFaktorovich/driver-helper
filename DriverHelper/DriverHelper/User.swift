@@ -1,6 +1,7 @@
 import Foundation
 import UIKit
 import CoreLocation
+import CryptoKit
 
 extension String {
     func base64Encoded() -> String {
@@ -26,7 +27,7 @@ enum Server : String {
     case handler_make_friend = "/add_friend"
     case handler_make_route = "/add_route"
     case handler_map = "/map"
-    case port = "5000"
+    case port = "8080"
 }
 
 extension CLLocationCoordinate2D : Codable {
@@ -138,6 +139,9 @@ struct NetworkRoutes : Codable {
 }
 
 class User {
+    static var main_user: User?
+    private var routes_: Routes
+    
     struct PersonData : Codable {
         var login: String
         var password: String
@@ -160,8 +164,9 @@ class User {
             password = try container.decode(String.self, forKey: .password).base64Decoded()
         }
         init(login:String, password:String) {
+            let password_hash = SHA256.hash(data: Data(password.utf8))
             self.login = login
-            self.password = password
+            self.password = password_hash.map { String(format: "%02hhx", $0) }.joined()
         }
     }
     
@@ -197,6 +202,7 @@ class User {
     init(login: String, password: String) {
         data = PersonData(login:login, password: password)
         token = nil
+        routes_ = Routes()
     }
     func LoginFromCache() -> Void {
         guard let cur_login: String = GetLogin() else { return }
@@ -229,14 +235,14 @@ extension User {
         
         // for async use DispatchQueue.main.async {}
         var error_msg: String?
-        let semaphore = DispatchSemaphore(value: 0)
+        let group = DispatchGroup()
+        group.enter()
         let task = session.dataTask(with: request) { data, response, error in
             if let httpResponse = response as? HTTPURLResponse {
                 guard let token_data = data else { return }
-                print(httpResponse.statusCode)
                 if httpResponse.statusCode == 200 {
                     self.token = try! JSONDecoder().decode(Token.self, from: token_data)
-                    UserSave(user: main_user!)
+                    UserSave(user: self)
                 } else if httpResponse.statusCode == 409 {
                     let json = try? JSONSerialization.jsonObject(with: data!, options: [])
                     let dictionary = json as! [String: Any]
@@ -245,10 +251,10 @@ extension User {
                     error_msg = "Uknown error"
                 }
             }
-            semaphore.signal()
+            group.leave()
         }
         task.resume()
-        _ = semaphore.wait(timeout: DispatchTime.distantFuture)
+        group.wait()
         return error_msg
         
     }
@@ -261,27 +267,29 @@ extension User {
         let httpBody = try! jsonEncoder.encode(data)
         request.httpBody = httpBody
         let session = URLSession.shared
-        
+
         var error_msg: String?
-        let semaphore = DispatchSemaphore(value: 0)
+        let group = DispatchGroup()
+        group.enter()
         let task = session.dataTask(with: request) { data, response, error in
             if let httpResponse = response as? HTTPURLResponse {
                 guard let token_data = data else { return }
                 if httpResponse.statusCode == 200 {
                     self.token = try! JSONDecoder().decode(Token.self, from: token_data)
-                    UserSave(user: main_user!)
+                    UserSave(user: User.main_user!)
                 } else if httpResponse.statusCode == 404 {
                     let json = try? JSONSerialization.jsonObject(with: data!, options: [])
                     let dictionary = json as! [String: Any]
                     error_msg = dictionary["detail"] as? String
+                    error_msg = error_msg?.base64Decoded()
                 } else {
                     error_msg = "Uknown error"
                 }
             }
-            semaphore.signal()
+            group.leave()
         }
         task.resume()
-        _ = semaphore.wait(timeout: DispatchTime.distantFuture)
+        group.wait()
         return error_msg
     }
     func AddFriend(friend_login: String) -> String? {
@@ -295,7 +303,8 @@ extension User {
         let session = URLSession.shared
         
         var error_msg: String?
-        let semaphore = DispatchSemaphore(value: 0)
+        let group = DispatchGroup()
+        group.enter()
         let task = session.dataTask(with: request) { data, response, error in
             if let httpResponse = response as? HTTPURLResponse {
                 if httpResponse.statusCode == 404 {
@@ -304,10 +313,10 @@ extension User {
                     error_msg = "Uknown error"
                 }
             }
-            semaphore.signal()
+            group.leave()
         }
         task.resume()
-        _ = semaphore.wait(timeout: DispatchTime.distantFuture)
+        group.wait()
         return error_msg
     }
     func GetMap() -> NetworkRoutes {
@@ -318,18 +327,17 @@ extension User {
         let session = URLSession.shared
         var routes = NetworkRoutes()
         
-        let semaphore = DispatchSemaphore(value: 0)
+        let group = DispatchGroup()
+        group.enter()
         let task = session.dataTask(with: request) { data, response, error in
             routes = try! JSONDecoder().decode(NetworkRoutes.self, from: data!);
-            semaphore.signal()
+            group.leave()
         }
         task.resume()
-        _ = semaphore.wait(timeout: DispatchTime.distantFuture)
+        group.wait()
         return routes
     }
     func AddRoute(route: NetworkRoute) -> Void {
-        print(route.route.date_start)
-        print(route.route.time_start)
         let cur_url = MakeUrl(path: Server.handler_make_route.rawValue)
         var request = URLRequest(url: cur_url)
         request.httpMethod = "POST"
@@ -343,7 +351,4 @@ extension User {
         task.resume()
     }
  }
-
-var main_user: User?
-
 

@@ -14,7 +14,7 @@ class FriendsController: UIViewController {
 
     @IBAction func AddFriend(_ sender: Any) {
         if (friend_login.text != nil && !friend_login.text!.isEmpty) {
-            main_user!.AddFriend(friend_login: friend_login.text!)
+            User.main_user?.AddFriend(friend_login: friend_login.text!)
             friend_login.text = ""
         }
     }
