@@ -40,8 +40,6 @@ class MapController: UIViewController, MKMapViewDelegate {
         super.loadView()
         self_name = GetLogin()!
         self_color = ColorFromName(name: self_name)
-        User.main_user?.routes_controller_.Update()
-        User.main_user?.routes_controller_.Draw(map_view: mapView)
 //        RepeatDraw()
         AddTapRecognizer()
 //        RepeatUpdateMap()
@@ -140,9 +138,10 @@ class MapController: UIViewController, MKMapViewDelegate {
                 request.transportType = .automobile
                 
                 let net_route = NetworkRoute(start: lastStartCoordinate, finish: tappedCoordinate, owner: self_name, date: Date())
-                User.main_user?.AddRoute(route: net_route)
-                User.main_user?.routes_controller_.Update()
-                User.main_user?.routes_controller_.Draw(map_view: mapView)
+                DispatchQueue.global().async {
+                    User.main_user?.AddRoute(route: net_route)
+                }
+                Routes.DrawOne(map_view: mapView, route: Route(name: self_name, startCoordinate: lastStartCoordinate, finishCoordinate: tappedCoordinate, initialColor: self_color))
 //                routes_lock.lock()
 //
 //                routes.insert(Route(name: self_name, startCoordinate: lastStartCoordinate, finishCoordinate: tappedCoordinate, initialColor: self_color))
@@ -398,7 +397,7 @@ class RoutesController {
         async_task_ = false
         mutex_update_and_draw_ = NSLock()
     }
-    func Update() -> Void {
+    private func Update() -> Void {
         let net_routes = User.main_user!.GetMap()
         var routes_set = Set<Route>()
         for net_route in net_routes.routes {
@@ -408,7 +407,7 @@ class RoutesController {
         routes_.Assign(routes_set: routes_set)
     }
     func StartRepeatAsyncUpdateAndDraw(map_view: MKMapView, period: Double) -> Void {
-        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + period) { [self] in
+        DispatchQueue.global(qos: .default).asyncAfter(deadline: .now() + period) { [self] in
             self.Update()
             self.routes_.Draw(map_view: map_view)
             
@@ -422,15 +421,15 @@ class RoutesController {
             self.StartRepeatAsyncUpdateAndDraw(map_view: map_view, period: period)
         }
     }
-    func Draw(map_view: MKMapView) -> Void {
+    private func Draw(map_view: MKMapView) -> Void {
         self.routes_.Draw(map_view: map_view)
     }
     func RepeatUpdateAndDraw(map_view: MKMapView, period: Double) -> Void {
         mutex_update_and_draw_.lock()
         need_update_and_draw_ = true
         if !async_task_ {
-            mutex_update_and_draw_.unlock()
             self.async_task_ = true
+            mutex_update_and_draw_.unlock()
             Update()
             Draw(map_view: map_view)
             StartRepeatAsyncUpdateAndDraw(map_view: map_view, period: period)

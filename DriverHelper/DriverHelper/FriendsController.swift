@@ -6,7 +6,7 @@ class FriendsController: UIViewController, UITableViewDelegate, UITableViewDataS
     @IBOutlet weak var friend_login: UITextField!
     @IBOutlet var friendsTableView: UITableView!
     
-    var friends_list = ["Maria", "Leonid", "Alina"]
+    var friends_list: [String] = []
     
     override func loadView() {
         super.loadView()
@@ -32,7 +32,9 @@ class FriendsController: UIViewController, UITableViewDelegate, UITableViewDataS
     @IBAction func AddFriend(_ sender: Any) {
         if (friend_login.text != nil && !friend_login.text!.isEmpty) {
             User.main_user?.AddFriend(friend_login: friend_login.text!)
+            friends_list.append(friend_login.text!)
             friend_login.text = ""
+            friendsTableView.reloadData()
         }
     }
     
