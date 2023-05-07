@@ -55,12 +55,25 @@
                                     <action selector="LogOut:" destination="wHW-cF-5cd" eventType="touchUpInside" id="Dy0-UF-A9B"/>
                                 </connections>
                             </button>
+                            <imageView clipsSubviews="YES" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="MAB-Xe-ctW">
+                                <rect key="frame" x="137" y="44" width="140" height="140"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="140" id="Ssl-oL-Gsl"/>
+                                    <constraint firstAttribute="height" constant="140" id="mIQ-5v-QOF"/>
+                                </constraints>
+                                <edgeInsets key="layoutMargins" top="8" left="8" bottom="8" right="8"/>
+                            </imageView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="XYn-ee-MnP"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="MAB-Xe-ctW" firstAttribute="top" secondItem="XYn-ee-MnP" secondAttribute="top" id="SYM-Cj-61L"/>
+                            <constraint firstItem="MAB-Xe-ctW" firstAttribute="centerX" secondItem="XYn-ee-MnP" secondAttribute="centerX" id="wgG-rB-KV2"/>
+                        </constraints>
                     </view>
                     <tabBarItem key="tabBarItem" title="Settings" image="settings" id="g1r-ph-Hi0"/>
                     <connections>
+                        <outlet property="imageView" destination="MAB-Xe-ctW" id="eiS-d4-fPv"/>
                         <outlet property="log_out_button" destination="NgV-iu-gzf" id="uuy-IP-FQS"/>
                     </connections>
                 </viewController>
