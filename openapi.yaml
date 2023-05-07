@@ -145,6 +145,25 @@ paths:
                     description: OK
                 '404':
                     description: login was not fount
+    /friends:
+        get:
+            description: get list of all friends 
+            security:
+                - UserToken: [ ]
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    friends:
+                                      description: my friends
+                                      type: array
+                                      items:
+                                          description: friend's login
+                                          type: string
     /map:
         get:
             description: get my routes and my friends' routes
@@ -181,4 +200,3 @@ paths:
             responses:
                 '200':
                     description: OK
-
