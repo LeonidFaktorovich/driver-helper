@@ -161,7 +161,7 @@ struct Friends : Codable {
 class User {
     static var main_user: User?
     var routes_controller_: RoutesController
-    
+    var avatar: UIImage
     struct PersonData : Codable {
         var login: String
         var password: String
@@ -223,6 +223,7 @@ class User {
         data = PersonData(login:login, password: password)
         token = nil
         routes_controller_ = RoutesController()
+        avatar = User.CreateDefaultAvatar(name: data.login)
     }
     func LoginFromCache() -> Void {
         guard let cur_login: String = GetLogin() else { return }
@@ -389,3 +390,29 @@ extension User {
     }
  }
 
+extension User {
+    private static func CreateDefaultAvatar(name: String) -> UIImage {
+        let size = CGSize(width: 140, height: 140) // размеры картинки
+        let backgroundColor = ColorFromName(name: name) // цвет фона
+        let textColor = UIColor.white // цвет текста
+
+        UIGraphicsBeginImageContextWithOptions(size, false, 0)
+        let context = UIGraphicsGetCurrentContext()!
+
+        // заполняем фон
+        backgroundColor.setFill()
+        context.fill(CGRect(origin: CGPoint.zero, size: size))
+
+        // рисуем текст
+        let text = String(name[name.startIndex]) as NSString
+        let font = UIFont.systemFont(ofSize: 72)
+        let attributes = [NSAttributedString.Key.font: font, NSAttributedString.Key.foregroundColor: textColor]
+        let textSize = text.size(withAttributes: attributes)
+        let textRect = CGRect(x: (size.width - textSize.width) / 2, y: (size.height - textSize.height) / 2, width: textSize.width, height: textSize.height)
+        text.draw(in: textRect, withAttributes: attributes)
+
+        let image = UIGraphicsGetImageFromCurrentImageContext()!
+        UIGraphicsEndImageContext()
+        return image
+    }
+}

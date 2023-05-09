@@ -36,12 +36,10 @@ class SettingsController: UIViewController, UIImagePickerControllerDelegate, UIN
     override func viewDidLoad() {
         super.viewDidLoad()
         imagePicker.delegate = self
-        imageView.layer.borderWidth = 2
-        imageView.layer.borderColor = UIColor.black.cgColor
         imageView.RoundedImage()
         imageView.isUserInteractionEnabled = true
         imageView.addGestureRecognizer(tapGesture)
-        print(imageView.frame)
+        imageView.image = User.main_user?.avatar
         tapGesture.addTarget(self, action: #selector(SelectImage))
         
     }
@@ -57,7 +55,7 @@ class SettingsController: UIViewController, UIImagePickerControllerDelegate, UIN
         guard let selectedImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage else {
             fatalError("Expected a dictionary containing an image, but was provided the following: \(info)")
         }
-        print(selectedImage.size)
+        User.main_user?.avatar = selectedImage
         imageView.image = selectedImage.center_crop(to: 4 * Int(imageView.frame.size.width))
         // Закрываем контроллер выбора изображения
         dismiss(animated: true, completion: nil)

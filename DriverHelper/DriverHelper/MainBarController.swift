@@ -11,10 +11,8 @@ class MainBarController : UITabBarController {
     }
     
     override func viewWillDisappear(_ animated: Bool) {
-        print(1)
     }
     
     override func viewDidDisappear(_ animated: Bool) {
-        print(2)
     }
 }
