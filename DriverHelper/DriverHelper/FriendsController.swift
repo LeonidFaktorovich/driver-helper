@@ -14,9 +14,10 @@ class FriendsController: UIViewController, UITableViewDelegate, UITableViewDataS
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        friends_list = User.main_user?.GetFriends().friends ?? []
         friendsTableView.delegate = self
         friendsTableView.dataSource = self
+        
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -30,6 +31,7 @@ class FriendsController: UIViewController, UITableViewDelegate, UITableViewDataS
    }
 
     @IBAction func AddFriend(_ sender: Any) {
+        
         if (friend_login.text != nil && !friend_login.text!.isEmpty) {
             User.main_user?.AddFriend(friend_login: friend_login.text!)
             friends_list.append(friend_login.text!)

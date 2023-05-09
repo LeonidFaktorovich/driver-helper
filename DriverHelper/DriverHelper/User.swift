@@ -27,6 +27,7 @@ enum Server : String {
     case handler_make_friend = "/add_friend"
     case handler_make_route = "/add_route"
     case handler_map = "/map"
+    case handler_get_friends = "/friends"
     case port = "8080"
 }
 
@@ -135,6 +136,25 @@ struct NetworkRoutes : Codable {
     }
     init() {
         routes = []
+    }
+}
+
+struct Friends : Codable {
+    var friends: [String]
+    enum CodingKeys: String, CodingKey {
+        case friends = "friends"
+    }
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        try container.encode(friends, forKey: .friends)
+    }
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        friends = try container.decode([String].self, forKey: .friends)
+    }
+    init() {
+        friends = []
     }
 }
 
@@ -318,6 +338,23 @@ extension User {
         task.resume()
         group.wait()
         return error_msg
+    }
+    func GetFriends() -> Friends {
+        let cur_url = MakeUrl(path: Server.handler_get_friends.rawValue)
+        var request = URLRequest(url: cur_url)
+        request.httpMethod = "GET"
+        request.allHTTPHeaderFields = ["Content-Type" : "application/json", "token" : token!.token.base64Encoded()]
+        let session = URLSession.shared
+        var friends: Friends = Friends()
+        let group = DispatchGroup()
+        group.enter()
+        let task = session.dataTask(with: request) { data, response, error in
+            friends = try! JSONDecoder().decode(Friends.self, from: data!);
+            group.leave()
+        }
+        task.resume()
+        group.wait()
+        return friends
     }
     func GetMap() -> NetworkRoutes {
         let cur_url = MakeUrl(path: Server.handler_map.rawValue)
