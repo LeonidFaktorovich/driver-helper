@@ -155,18 +155,65 @@ paths:
                     description: OK
                 '404':
                     description: login was not found
-    /delete_friend/{login}:
-        delete:
+    /delete_friend:
+        post:
             description: delete friend
-            parameters:
-                - in: path
-                  name: login
-                  required: true
-                  schema:
-                    type: object
-                    properties:
-                        friend_login:
-                            type: string
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                friend_login:
+                                    description: login of friend
+                                    type: string
+                            required:
+                                - friend_login
+            security:
+                - UserToken: [ ]
+            responses:
+                '200':
+                    description: OK
+                '404':
+                    description: login was not found
+    /approve_friend:
+        post:
+            description: approve friend
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                friend_login:
+                                    description: login of the user who wants to be added to friends
+                                    type: string
+                            required:
+                                - friend_login
+            security:
+                - UserToken: [ ]
+            responses:
+                '200':
+                    description: OK
+                '404':
+                    description: login was not found
+    /dismiss_friend:
+        post:
+            description: dismiss friend
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                friend_login:
+                                    description: login of the user who wants to be added to friends
+                                    type: string
+                            required:
+                                - friend_login
             security:
                 - UserToken: [ ]
             responses:
@@ -192,6 +239,25 @@ paths:
                                       type: array
                                       items:
                                           description: friend's login
+                                          type: string
+    /friend_requests:
+        get:
+            description: get list of all friend requests
+            security:
+                - UserToken: [ ]
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    users:
+                                      description: my friend requests
+                                      type: array
+                                      items:
+                                          description: user's login
                                           type: string
     /map:
         get:
@@ -228,25 +294,23 @@ paths:
             responses:
                 '200':
                     description: OK
-    /delete_route/{route}:
-        delete:
+    /delete_route:
+        post:
             description: delete route
-            parameters:
-                - in: path
-                  name: route
-                  required: true
-                  schema:
-                    type: object
-                    properties:
-                        route:
-                            $ref: '#/components/schemas/route'     
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                route:
+                                    $ref: '#/components/schemas/route' 
             security:
                 - UserToken: [ ]
             responses:
                 '200':
                     description: OK
-                '404':
-                    description: route was not found
     /edit_route:
         post:
             description: edit route
@@ -271,6 +335,75 @@ paths:
                     description: OK
                 '404':
                     description: route was not found
+    /join_route:
+        post:
+            description: join the route
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                route:
+                                    $ref: '#/components/schemas/route' 
+            security:
+                - UserToken: [ ]
+            responses:
+                '200':
+                    description: OK
+    /approve_fellow:
+        post:
+            description: approve fellow traveler
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                friend_login:
+                                    description: friend login
+                                    type: string
+                                route:
+                                    description: route
+                                    $ref: '#/components/schemas/route'
+                            required:
+                                - friend_login
+                                - route
+            security:
+                - UserToken: [ ]
+            responses:
+                '200':
+                    description: OK
+                '404':
+                    description: login or route was not found
+    /dismiss_fellow:
+        post:
+            description: dismiss fellow traveler
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                friend_login:
+                                    description: friend login
+                                    type: string
+                                route:
+                                    description: route
+                                    $ref: '#/components/schemas/route'
+                            required:
+                                - friend_login
+                                - route
+            security:
+                - UserToken: [ ]
+            responses:
+                '200':
+                    description: OK
+                '404':
+                    description: login or route was not found
     /avatar_path:
         get:
             description: path to avatar 
