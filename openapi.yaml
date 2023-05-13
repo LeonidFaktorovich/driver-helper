@@ -36,6 +36,16 @@ components:
                     type: string
                     format: HH:MM
                     example: 19:10
+                approved:
+                    type: array
+                    items:
+                        description: logins of approved friends
+                        type: string
+                wait_approve:
+                    type: array
+                    items:
+                        description: logins of friends awaiting approval
+                        type: string
     securitySchemes:
         UserToken:
             type: apiKey
@@ -144,7 +154,26 @@ paths:
                 '200':
                     description: OK
                 '404':
-                    description: login was not fount
+                    description: login was not found
+    /delete_friend/{login}:
+        delete:
+            description: delete friend
+            parameters:
+                - in: path
+                  name: login
+                  required: true
+                  schema:
+                    type: object
+                    properties:
+                        friend_login:
+                            type: string
+            security:
+                - UserToken: [ ]
+            responses:
+                '200':
+                    description: OK
+                '404':
+                    description: login was not found
     /friends:
         get:
             description: get list of all friends 
@@ -193,13 +222,55 @@ paths:
                             type: object
                             properties:
                                 route:
-                                    $ref: '#/components/schemas/route'
-                            
+                                    $ref: '#/components/schemas/route' 
             security:
                 - UserToken: [ ]
             responses:
                 '200':
                     description: OK
+    /delete_route/{route}:
+        delete:
+            description: delete route
+            parameters:
+                - in: path
+                  name: route
+                  required: true
+                  schema:
+                    type: object
+                    properties:
+                        route:
+                            $ref: '#/components/schemas/route'     
+            security:
+                - UserToken: [ ]
+            responses:
+                '200':
+                    description: OK
+                '404':
+                    description: route was not found
+    /edit_route:
+        post:
+            description: edit route
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                old_route:
+                                    $ref: '#/components/schemas/route'
+                                new_route:
+                                    $ref: '#/components/schemas/route'
+                            required:
+                                - old_route
+                                - new_route    
+            security:
+                - UserToken: [ ]
+            responses:
+                '200':
+                    description: OK
+                '404':
+                    description: route was not found
     /avatar_path:
         get:
             description: path to avatar 
