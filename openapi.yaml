@@ -200,3 +200,20 @@ paths:
             responses:
                 '200':
                     description: OK
+    /avatar_path:
+        get:
+            description: path to avatar 
+            security:
+                - UserToken: [ ]
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                              type: object
+                              properties:
+                                  path:
+                                      description: path to avatar
+                                      type: string
+                                  
