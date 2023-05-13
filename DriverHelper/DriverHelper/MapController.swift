@@ -13,7 +13,11 @@ import Contacts
 //let routes_to_draw_lock = NSLock()
 
 
-class MapController: UIViewController, MKMapViewDelegate {
+protocol HandleMapSearch {
+    func dropPinZoomIn(placemark:MKPlacemark)
+}
+
+class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
     @IBOutlet weak var mapView: MKMapView!
     
     @IBOutlet weak var bottom_field: UITabBarItem!
@@ -29,6 +33,8 @@ class MapController: UIViewController, MKMapViewDelegate {
     
     let update_lock = NSLock()
     var need_to_update = false
+    
+    var resultSearchController:UISearchController? = nil
     
     override func loadView() {
 //        update_lock.lock()
@@ -50,6 +56,22 @@ class MapController: UIViewController, MKMapViewDelegate {
         super.viewDidLoad()
         mapView.delegate = self
         mapView.setRegion(MKCoordinateRegion(center: initialLocation, latitudinalMeters: regionRadius, longitudinalMeters: regionRadius), animated: true)
+        
+        let searchTable = storyboard!.instantiateViewController(withIdentifier: "SearchTableController") as! SearchTableController
+        resultSearchController = UISearchController(searchResultsController: searchTable)
+        resultSearchController?.searchResultsUpdater = searchTable
+        
+        let searchBar = resultSearchController!.searchBar
+        searchBar.sizeToFit()
+        searchBar.placeholder = "Enter location"
+        navigationItem.titleView = resultSearchController?.searchBar
+        
+        resultSearchController?.hidesNavigationBarDuringPresentation = false
+        resultSearchController?.dimsBackgroundDuringPresentation = true
+        definesPresentationContext = true
+        searchTable.mapView = mapView
+        searchTable.handleMapSearchDelegate = self
+
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -224,6 +246,34 @@ class MapController: UIViewController, MKMapViewDelegate {
 //           UpdateMap()
 //        }
 //    }
+    
+    func dropPinZoomIn(placemark:MKPlacemark){
+        let span = MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+        let region = MKCoordinateRegion(center: placemark.coordinate, span: span)
+        mapView.setRegion(region, animated: true)
+        
+        let point: Point
+        if lastPressIsStart {
+            point = Point(initialCoordinate: placemark.coordinate, initialColor: self_color, initialText: nil)
+            let request = MKDirections.Request()
+            request.source = MKMapItem(placemark: MKPlacemark(coordinate: lastStartCoordinate))
+            request.destination = MKMapItem(placemark: MKPlacemark(coordinate: placemark.coordinate))
+            request.transportType = .automobile
+            
+            let net_route = NetworkRoute(start: lastStartCoordinate, finish: placemark.coordinate, owner: self_name, date: Date())
+            DispatchQueue.global().async {
+                User.main_user?.AddRoute(route: net_route)
+            }
+            let new_route = Route(name: self_name, startCoordinate: lastStartCoordinate, finishCoordinate: placemark.coordinate, initialColor: self_color)
+            Routes.DrawOne(map_view: mapView, route: new_route)
+            User.main_user?.routes_controller_.Insert(route: new_route)
+        } else {
+            point = Point(initialCoordinate: placemark.coordinate, initialColor: self_color, initialText: String(self_name[self_name.startIndex]))
+            lastStartCoordinate = placemark.coordinate
+        }
+        lastPressIsStart = !lastPressIsStart
+        mapView.addAnnotation(point)
+    }
 }
 
 func ColorFromName(name: String) -> UIColor {
