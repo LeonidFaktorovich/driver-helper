@@ -240,9 +240,9 @@ paths:
                                       items:
                                           description: friend's login
                                           type: string
-    /friend_requests:
+    /incoming_requests:
         get:
-            description: get list of all friend requests
+            description: get list of all incoming friend requests
             security:
                 - UserToken: [ ]
             responses:
@@ -254,7 +254,26 @@ paths:
                                 type: object
                                 properties:
                                     users:
-                                      description: my friend requests
+                                      description: my incoming friend requests
+                                      type: array
+                                      items:
+                                          description: user's login
+                                          type: string
+    /outgoing_requests:
+        get:
+            description: get list of all outgoing friend requests
+            security:
+                - UserToken: [ ]
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    users:
+                                      description: my outgoing friend requests
                                       type: array
                                       items:
                                           description: user's login
