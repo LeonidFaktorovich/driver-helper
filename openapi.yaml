@@ -240,7 +240,7 @@ paths:
                                       items:
                                           description: friend's login
                                           type: string
-    /incoming_requests:
+    /friends/incoming_requests:
         get:
             description: get list of all incoming friend requests
             security:
@@ -259,7 +259,7 @@ paths:
                                       items:
                                           description: user's login
                                           type: string
-    /outgoing_requests:
+    /friends/outgoing_requests:
         get:
             description: get list of all outgoing friend requests
             security:
