@@ -18,6 +18,8 @@ protocol HandleMapSearch {
 }
 
 class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
+    private let bottomView = RouteView(frame: CGRect(x: 0, y: UIScreen.main.bounds.height, width: UIScreen.main.bounds.width, height: 200))
+    private let bottomViewController = RouteViewController()
     @IBOutlet weak var mapView: MKMapView!
     
     @IBOutlet weak var bottom_field: UITabBarItem!
@@ -25,6 +27,7 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
     let regionRadius: CLLocationDistance = 100000
     
     
+    @IBOutlet weak var route_info: UILabel!
     var self_name: String = ""
     var self_color: UIColor = .systemRed
     
@@ -44,16 +47,33 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
 //        update_lock.unlock()
         
         super.loadView()
+//        view.addSubview(bottomView)
+//        view.bringSubviewToFront(bottomView)
         self_name = GetLogin()!
         self_color = ColorFromName(name: self_name)
 //        RepeatDraw()
         AddTapRecognizer()
 //        RepeatUpdateMap()
+        // route_info.isHidden = true
+//        route_info.text = "Hello, World!"
+//        route_info.textAlignment = .center
+//        route_info.isHidden = true
+        //bottomViewController.SetRouteView(route_view: bottomView)
         User.main_user?.routes_controller_.RepeatUpdateAndDraw(map_view: mapView, period: 10.0)
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        addChild(bottomViewController)
+        bottomViewController.didMove(toParent: self)
+        view.addSubview(bottomView)
+        bottomViewController.SetRouteView(route_view: bottomView)
+        // добавьте обработчик жеста свайпа вниз
+        let swipeGesture = UISwipeGestureRecognizer(target: self, action: #selector(dismissBottomView))
+        swipeGesture.direction = .down
+        bottomView.addGestureRecognizer(swipeGesture)
+        
         mapView.delegate = self
         mapView.setRegion(MKCoordinateRegion(center: initialLocation, latitudinalMeters: regionRadius, longitudinalMeters: regionRadius), animated: true)
         
@@ -67,11 +87,10 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
         navigationItem.titleView = resultSearchController?.searchBar
         
         resultSearchController?.hidesNavigationBarDuringPresentation = false
-        resultSearchController?.dimsBackgroundDuringPresentation = true
+        // resultSearchController?.dimsBackgroundDuringPresentation = true
         definesPresentationContext = true
         searchTable.mapView = mapView
         searchTable.handleMapSearchDelegate = self
-
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -89,9 +108,20 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
     }
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        
         var view: MKMarkerAnnotationView
         view = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: "point")
         
+//        view.canShowCallout = true
+//        let label = UILabel()
+//        label.text = ""
+//        label.textColor = UIColor.blue
+//        label.backgroundColor = UIColor.white
+//        label.textAlignment = .center
+//        label.frame = CGRect(x: -50, y: -20, width: 100, height: 80)
+//        label.numberOfLines = 2
+//        view.detailCalloutAccessoryView = label
+
         if let annotation = annotation as? Point {
             view.markerTintColor = annotation.color
             if annotation.text != nil {
@@ -111,6 +141,36 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
             pr.strokeColor = polyline.color
         }
         return pr
+    }
+    
+    // вызывается когда мы нажимаем на начало или на конец маршрута
+    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+        // here view.isSelected = true
+        guard let marker_view = view as? MKMarkerAnnotationView else {
+            return
+        }
+        UIView.animate(withDuration: 0.3) {
+                    self.bottomView.frame.origin.y = UIScreen.main.bounds.height - self.bottomView.frame.height
+        }
+//        route_info.isHidden = false
+        // marker_view.image = User.main_user?.avatar
+    }
+    
+    // вызывается когда мы отпускаем начало или конец маршрута
+    func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView) {
+        // here view.isSelected = false
+        guard let marker_view = view as? MKMarkerAnnotationView else {
+            return
+        }
+        marker_view.image = nil
+//        route_info.isHidden = true
+    }
+    
+    @objc func dismissBottomView() {
+        UIView.animate(withDuration: 0.3) {
+            self.bottomView.frame.origin.y = UIScreen.main.bounds.height
+            self.view.layoutIfNeeded()
+        }
     }
     
     
@@ -148,6 +208,7 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
 //    }
     
     @IBAction func tapMap(_ sender: UITapGestureRecognizer) {
+
         if sender.state == .ended {
             let tappedCoordinate = mapView.convert(sender.location(in: mapView), toCoordinateFrom: mapView)
             let point: Point

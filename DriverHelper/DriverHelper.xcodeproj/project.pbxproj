@@ -31,6 +31,7 @@
 		F2DAAB3D298FEABE00B08D5B /* SettingsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2DAAB3C298FEABE00B08D5B /* SettingsController.swift */; };
 		F2DAAB3F298FEACC00B08D5B /* MapController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2DAAB3E298FEACC00B08D5B /* MapController.swift */; };
 		F2DAAB41298FEAE100B08D5B /* FriendsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2DAAB40298FEAE100B08D5B /* FriendsController.swift */; };
+		F2F37D872A10390A00CC0D51 /* Route.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2F37D862A10390A00CC0D51 /* Route.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -79,6 +80,7 @@
 		F2DAAB3C298FEABE00B08D5B /* SettingsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsController.swift; sourceTree = "<group>"; };
 		F2DAAB3E298FEACC00B08D5B /* MapController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapController.swift; sourceTree = "<group>"; };
 		F2DAAB40298FEAE100B08D5B /* FriendsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsController.swift; sourceTree = "<group>"; };
+		F2F37D862A10390A00CC0D51 /* Route.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Route.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -152,6 +154,7 @@
 				F2DAAB40298FEAE100B08D5B /* FriendsController.swift */,
 				F265D3DD2996E3FD00D8A120 /* User.swift */,
 				9873BC152A0FA3A700BFAD28 /* SearchTableController.swift */,
+				F2F37D862A10390A00CC0D51 /* Route.swift */,
 			);
 			path = DriverHelper;
 			sourceTree = "<group>";
@@ -321,6 +324,7 @@
 				F2DAAB3B298FD4F100B08D5B /* MainBarController.swift in Sources */,
 				F21DF0D4298FCD7C00FD9F4D /* RegistrationController.swift in Sources */,
 				F27A7523297D9D6A009B9157 /* ViewController.swift in Sources */,
+				F2F37D872A10390A00CC0D51 /* Route.swift in Sources */,
 				F27A7529297D9D6A009B9157 /* DriverHelper.xcdatamodeld in Sources */,
 				F2DAAB41298FEAE100B08D5B /* FriendsController.swift in Sources */,
 				F27A751F297D9D6A009B9157 /* AppDelegate.swift in Sources */,
