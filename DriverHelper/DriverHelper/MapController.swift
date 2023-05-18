@@ -33,6 +33,7 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
     
     var lastPressIsStart = false
     var lastStartCoordinate = CLLocationCoordinate2D()
+    var lastStartPointMarkerView : PointMarkerView?
     
     let update_lock = NSLock()
     var need_to_update = false
@@ -109,8 +110,8 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         
-        var view: MKMarkerAnnotationView
-        view = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: "point")
+        var view: PointMarkerView
+        view = PointMarkerView(annotation: annotation, reuseIdentifier: "point")
         
 //        view.canShowCallout = true
 //        let label = UILabel()
@@ -123,11 +124,19 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
 //        view.detailCalloutAccessoryView = label
 
         if let annotation = annotation as? Point {
-            view.markerTintColor = annotation.color
-            if annotation.text != nil {
-                view.glyphText = annotation.text
+//            view.markerTintColor = annotation.color
+//            if annotation.type == PointType.start {
+//                view.glyphText = annotation.text
+//            } else {
+//                view.glyphImage = UIImage(#imageLiteral(resourceName: "Attachments/flag"))
+//            }
+            
+            view.addOwner(name: self_name)
+            if annotation.type == PointType.start {
+                lastStartPointMarkerView = view
             } else {
-                view.glyphImage = UIImage(#imageLiteral(resourceName: "Attachments/flag"))
+                view.addStart(coordinate: lastStartCoordinate)
+                lastStartPointMarkerView?.addFinish(coordinate: annotation.coordinate)
             }
         }
         return view
@@ -213,7 +222,7 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
             let tappedCoordinate = mapView.convert(sender.location(in: mapView), toCoordinateFrom: mapView)
             let point: Point
             if lastPressIsStart {
-                point = Point(initialCoordinate: tappedCoordinate, initialColor: self_color, initialText: nil)
+                point = Point(initialType: PointType.finish, initialCoordinate: tappedCoordinate, initialColor: self_color, initialText: nil)
                 
                 let request = MKDirections.Request()
                 request.source = MKMapItem(placemark: MKPlacemark(coordinate: lastStartCoordinate))
@@ -243,7 +252,7 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
 //                    }
 //                }
             } else {
-                point = Point(initialCoordinate: tappedCoordinate, initialColor: self_color, initialText: String(self_name[self_name.startIndex]))
+                point = Point(initialType: PointType.start, initialCoordinate: tappedCoordinate, initialColor: self_color, initialText: String(self_name[self_name.startIndex]))
                 lastStartCoordinate = tappedCoordinate
             }
             lastPressIsStart = !lastPressIsStart
@@ -315,7 +324,7 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
         
         let point: Point
         if lastPressIsStart {
-            point = Point(initialCoordinate: placemark.coordinate, initialColor: self_color, initialText: nil)
+            point = Point(initialType: PointType.finish, initialCoordinate: placemark.coordinate, initialColor: self_color, initialText: nil)
             let request = MKDirections.Request()
             request.source = MKMapItem(placemark: MKPlacemark(coordinate: lastStartCoordinate))
             request.destination = MKMapItem(placemark: MKPlacemark(coordinate: placemark.coordinate))
@@ -329,7 +338,7 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
             Routes.DrawOne(map_view: mapView, route: new_route)
             User.main_user?.routes_controller_.Insert(route: new_route)
         } else {
-            point = Point(initialCoordinate: placemark.coordinate, initialColor: self_color, initialText: String(self_name[self_name.startIndex]))
+            point = Point(initialType: PointType.start, initialCoordinate: placemark.coordinate, initialColor: self_color, initialText: String(self_name[self_name.startIndex]))
             lastStartCoordinate = placemark.coordinate
         }
         lastPressIsStart = !lastPressIsStart
@@ -375,16 +384,77 @@ func ColorFromName(name: String) -> UIColor {
     return UIColor.systemGreen
 }
 
+enum PointType {
+    case start
+    case finish
+}
+
 class Point : NSObject, MKAnnotation {
     let coordinate: CLLocationCoordinate2D
     let color: UIColor
     let text: String?
+    let type: PointType
 
-    init(initialCoordinate: CLLocationCoordinate2D, initialColor: UIColor, initialText: String?) {
+    init(initialType: PointType, initialCoordinate: CLLocationCoordinate2D, initialColor: UIColor, initialText: String?) {
         self.coordinate = initialCoordinate
         self.color = initialColor
         self.text = initialText
+        self.type = initialType
         super.init()
+    }
+}
+
+class PointMarkerView : MKMarkerAnnotationView {
+    var owner : String?
+    var start : String?
+    var finish : String?
+    var date : String?
+    
+    override var annotation: MKAnnotation? {
+        willSet {
+            guard let point = newValue as? Point else {
+                return
+            }
+            canShowCallout = true
+            
+//            calloutOffset = CGPoint(x: -5, y: 5)
+//            rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
+            
+            markerTintColor = point.color
+            if point.type  == PointType.start {
+                glyphText = point.text
+                start = parseAddress(coordinate: point.coordinate)
+            } else {
+                glyphImage = UIImage(#imageLiteral(resourceName: "Attachments/flag"))
+                finish = parseAddress(coordinate: point.coordinate)
+            }
+        }
+    }
+    
+    func addStart(coordinate: CLLocationCoordinate2D) {
+        start = parseAddress(coordinate: coordinate)
+    }
+    
+    func addFinish(coordinate: CLLocationCoordinate2D) {
+        finish = parseAddress(coordinate: coordinate)
+    }
+    
+    func addOwner(name : String) {
+        owner = name
+    }
+    
+    func parseAddress(coordinate: CLLocationCoordinate2D) -> String {
+        let placemark = MKPlacemark(coordinate: coordinate)
+        let comma = (placemark.administrativeArea != nil && placemark.locality != nil) ? ", " : ""
+        
+        let addressLine = String(
+            format:"%@%@%@",
+            placemark.administrativeArea ?? "",
+            comma,
+            placemark.locality ?? ""
+        )
+
+        return addressLine
     }
 }
 
@@ -413,8 +483,8 @@ class Route : Hashable {
     let color : UIColor
     
     init(name: String, startCoordinate: CLLocationCoordinate2D, finishCoordinate: CLLocationCoordinate2D, initialColor: UIColor) {
-        start = Point(initialCoordinate: startCoordinate, initialColor: initialColor, initialText: String(name[name.startIndex]))
-        finish = Point(initialCoordinate: finishCoordinate, initialColor: initialColor, initialText: nil)
+        start = Point(initialType: PointType.start, initialCoordinate: startCoordinate, initialColor: initialColor, initialText: String(name[name.startIndex]))
+        finish = Point(initialType: PointType.finish, initialCoordinate: finishCoordinate, initialColor: initialColor, initialText: nil)
         color = initialColor
     }
 }
