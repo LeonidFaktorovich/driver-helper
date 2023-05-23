@@ -40,6 +40,8 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
     
     var resultSearchController:UISearchController? = nil
     
+    var lastDate : String = ""
+    
     override func loadView() {
 //        update_lock.lock()
 //
@@ -132,6 +134,7 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
 //            }
             
             view.addOwner(name: self_name)
+            view.addDate(date: lastDate)
             if annotation.type == PointType.start {
                 lastStartPointMarkerView = view
             } else {
@@ -216,6 +219,27 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
 //        routes_to_draw_lock.unlock()
 //    }
     
+    func getDateOfTrip() {
+        let alertController = UIAlertController(title: "Date", message: "Enter the date of your trip", preferredStyle: .alert)
+
+        alertController.addTextField { (textField) in
+            textField.placeholder = "01.01.0001"
+            textField.addTarget(alertController, action: #selector(alertController.textDidChange), for: .editingChanged)
+        }
+
+        let saveAction = UIAlertAction(title: "Submit", style: .default) { _ in
+            let inputDate = alertController.textFields![0].text
+            if (inputDate != "01.01.0001") {
+                return;
+            }
+            self.lastDate = inputDate!
+        }
+        
+        saveAction.isEnabled = false
+        alertController.addAction(saveAction)
+        present(alertController, animated: true, completion: nil)
+    }
+    
     @IBAction func tapMap(_ sender: UITapGestureRecognizer) {
 
         if sender.state == .ended {
@@ -251,6 +275,8 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
 //                        self.mapView.addOverlay(polyline)
 //                    }
 //                }
+                
+                getDateOfTrip()
             } else {
                 point = Point(initialType: PointType.start, initialCoordinate: tappedCoordinate, initialColor: self_color, initialText: String(self_name[self_name.startIndex]))
                 lastStartCoordinate = tappedCoordinate
@@ -337,12 +363,43 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
             let new_route = Route(name: self_name, startCoordinate: lastStartCoordinate, finishCoordinate: placemark.coordinate, initialColor: self_color)
             Routes.DrawOne(map_view: mapView, route: new_route)
             User.main_user?.routes_controller_.Insert(route: new_route)
+            
+            getDateOfTrip()
         } else {
             point = Point(initialType: PointType.start, initialCoordinate: placemark.coordinate, initialColor: self_color, initialText: String(self_name[self_name.startIndex]))
             lastStartCoordinate = placemark.coordinate
         }
         lastPressIsStart = !lastPressIsStart
         mapView.addAnnotation(point)
+    }
+}
+
+extension UIAlertController {
+    func isValidDate(_ date: String) -> Bool {
+        if date.count != 10 {
+            return false
+        }
+        
+        for i in 0..<date.count {
+            let index = date.index(date.startIndex, offsetBy: i)
+            if i == 2 || i == 5 {
+                if date[index] != "." {
+                    return false;
+                }
+            } else {
+                if !date[index].isNumber {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    @objc func textDidChange() {
+        if let date = textFields?[0].text,
+           let action = actions.last {
+            action.isEnabled = isValidDate(date)
+        }
     }
 }
 
@@ -441,6 +498,10 @@ class PointMarkerView : MKMarkerAnnotationView {
     
     func addOwner(name : String) {
         owner = name
+    }
+    
+    func addDate(date : String) {
+        self.date = date
     }
     
     func parseAddress(coordinate: CLLocationCoordinate2D) -> String {
