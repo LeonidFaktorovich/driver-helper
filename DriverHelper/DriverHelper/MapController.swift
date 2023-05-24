@@ -220,23 +220,41 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
 //    }
     
     func getDateOfTrip() {
-        let alertController = UIAlertController(title: "Date", message: "Enter the date of your trip", preferredStyle: .alert)
+//        let alertController = UIAlertController(title: "Date", message: "Enter the date of your trip", preferredStyle: .alert)
+//
+//        alertController.addTextField { (textField) in
+//            textField.placeholder = "01.01.0001"
+//            textField.addTarget(alertController, action: #selector(alertController.textDidChange), for: .editingChanged)
+//        }
+//
+//        let saveAction = UIAlertAction(title: "Submit", style: .default) { _ in
+//            let inputDate = alertController.textFields![0].text
+//            if (inputDate != "01.01.0001") {
+//                return;
+//            }
+//            self.lastDate = inputDate!
+//        }
+//
+//        saveAction.isEnabled = false
+//        alertController.addAction(saveAction)
+//        present(alertController, animated: true, completion: nil)
+        
+        let alertController = UIAlertController(title: "Enter the date and time of your trip", message: "\n\n\n", preferredStyle: .actionSheet)
 
-        alertController.addTextField { (textField) in
-            textField.placeholder = "01.01.0001"
-            textField.addTarget(alertController, action: #selector(alertController.textDidChange), for: .editingChanged)
-        }
+        let datePicker = UIDatePicker(frame: CGRect(x: 50, y: 50, width: 270, height: 216))
+        datePicker.datePickerMode = .dateAndTime
+        alertController.view.addSubview(datePicker)
 
-        let saveAction = UIAlertAction(title: "Submit", style: .default) { _ in
-            let inputDate = alertController.textFields![0].text
-            if (inputDate != "01.01.0001") {
-                return;
-            }
-            self.lastDate = inputDate!
+        let submitAction = UIAlertAction(title: "Submit", style: .cancel) { (action) in
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateStyle = .medium
+            dateFormatter.timeStyle = .short
+            let date = dateFormatter.string(from: datePicker.date)
+            self.lastDate = date
+            print(self.lastDate)
         }
         
-        saveAction.isEnabled = false
-        alertController.addAction(saveAction)
+        alertController.addAction(submitAction)
         present(alertController, animated: true, completion: nil)
     }
     
@@ -374,34 +392,34 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
     }
 }
 
-extension UIAlertController {
-    func isValidDate(_ date: String) -> Bool {
-        if date.count != 10 {
-            return false
-        }
-        
-        for i in 0..<date.count {
-            let index = date.index(date.startIndex, offsetBy: i)
-            if i == 2 || i == 5 {
-                if date[index] != "." {
-                    return false;
-                }
-            } else {
-                if !date[index].isNumber {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    @objc func textDidChange() {
-        if let date = textFields?[0].text,
-           let action = actions.last {
-            action.isEnabled = isValidDate(date)
-        }
-    }
-}
+//extension UIAlertController {
+//    func isValidDate(_ date: String) -> Bool {
+//        if date.count != 10 {
+//            return false
+//        }
+//
+//        for i in 0..<date.count {
+//            let index = date.index(date.startIndex, offsetBy: i)
+//            if i == 2 || i == 5 {
+//                if date[index] != "." {
+//                    return false;
+//                }
+//            } else {
+//                if !date[index].isNumber {
+//                    return false;
+//                }
+//            }
+//        }
+//        return true;
+//    }
+//
+//    @objc func textDidChange() {
+//        if let date = textFields?[0].text,
+//           let action = actions.last {
+//            action.isEnabled = isValidDate(date)
+//        }
+//    }
+//}
 
 func ColorFromName(name: String) -> UIColor {
     let name_to_color_table: [Character: UIColor] = [
