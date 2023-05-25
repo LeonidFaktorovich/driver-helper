@@ -29,8 +29,8 @@ class RegistrationController : UIViewController {
             error_label.textColor = UIColor.red
             return;
         }
-        if (password.count <= 3) {
-            error_label.text = "Password len must be > 3 characters"
+        if (password.count <= 5) {
+            error_label.text = "Password len must be > 5 characters"
             error_label.textColor = UIColor.red
             return;
         }
