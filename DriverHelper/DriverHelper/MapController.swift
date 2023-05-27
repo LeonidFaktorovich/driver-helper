@@ -34,13 +34,15 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
     var lastPressIsStart = false
     var lastStartCoordinate = CLLocationCoordinate2D()
     var lastStartPointMarkerView : PointMarkerView?
+    var lastNetRoute: NetworkRoute?
     
     let update_lock = NSLock()
     var need_to_update = false
     
     var resultSearchController:UISearchController? = nil
     
-    var lastDate : String = ""
+    var lastDate : Date?
+    var didSelectAnnotation = false
     
     override func loadView() {
 //        update_lock.lock()
@@ -125,23 +127,41 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
 //        label.numberOfLines = 2
 //        view.detailCalloutAccessoryView = label
 
-        if let annotation = annotation as? Point {
-//            view.markerTintColor = annotation.color
+//        if let annotation = annotation as? PointWithData {
+////            view.markerTintColor = annotation.color
+////            if annotation.type == PointType.start {
+////                view.glyphText = annotation.text
+////            } else {
+////                view.glyphImage = UIImage(#imageLiteral(resourceName: "Attachments/flag"))
+////            }
+//
+//            view.addOwner(name: self_name)
+//            view.addDate(date: lastDate)
 //            if annotation.type == PointType.start {
-//                view.glyphText = annotation.text
+//                lastStartPointMarkerView = view
 //            } else {
-//                view.glyphImage = UIImage(#imageLiteral(resourceName: "Attachments/flag"))
+//                view.addStart(coordinate: lastStartCoordinate)
+//                lastStartPointMarkerView?.addFinish(coordinate: annotation.coordinate)
+//
+////                view.addNetRoute(netRoute: lastNetRoute!)
+////                lastStartPointMarkerView?.addNetRoute(netRoute: lastNetRoute!)
 //            }
-            
-            view.addOwner(name: self_name)
-            view.addDate(date: lastDate)
-            if annotation.type == PointType.start {
-                lastStartPointMarkerView = view
-            } else {
-                view.addStart(coordinate: lastStartCoordinate)
-                lastStartPointMarkerView?.addFinish(coordinate: annotation.coordinate)
-            }
+//        }
+        
+        guard let point = annotation as? Point else {
+            return view
         }
+        
+        guard let pointWithData = point as? PointWithData else {
+            return view
+        }
+        
+//        view.addDate(date: pointWithData.data!.date_start)
+//        view.addOwner(name: pointWithData.data!.owner)
+//        view.addStart(coordinate: pointWithData.data!.start)
+//        view.addFinish(coordinate: pointWithData.data!.finish)
+        view.addRouteData(routeData: pointWithData.data!)
+        
         return view
     }
     
@@ -155,21 +175,58 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
         return pr
     }
     
+    func showRouteInfo(pointView: PointMarkerView) {
+        let routeInfoController = RouteInfoController()
+        routeInfoController.addRouteInfo(routeData: pointView.routeData!)
+        self.present(routeInfoController, animated: true, completion: nil)
+    }
+    
+    func tapOnRoute(pointView: PointMarkerView) {
+        let alertController = UIAlertController(title: "Route", message: "", preferredStyle: .alert)
+        
+        let infolAction = UIAlertAction(title: "Show information", style: .default) { (action) in
+            self.showRouteInfo(pointView: pointView)
+        }
+        alertController.addAction(infolAction)
+        
+        if pointView.routeData?.owner != self_name {
+            let joinlAction = UIAlertAction(title: "Join", style: .default) { (action) in
+                // добавить пользователя в pointView.routeData
+                pointView.routeData!.members.append(self.self_name)
+            }
+            alertController.addAction(joinlAction)
+        }
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
+        
+        alertController.addAction(cancelAction)
+        
+        present(alertController, animated: true, completion: nil)
+    }
+    
     // вызывается когда мы нажимаем на начало или на конец маршрута
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         // here view.isSelected = true
         guard let marker_view = view as? MKMarkerAnnotationView else {
             return
         }
-        UIView.animate(withDuration: 0.3) {
-                    self.bottomView.frame.origin.y = UIScreen.main.bounds.height - self.bottomView.frame.height
+//        UIView.animate(withDuration: 0.3) {
+//                    self.bottomView.frame.origin.y = UIScreen.main.bounds.height - self.bottomView.frame.height
+//        }
+//
+        guard let point_view = marker_view as? PointMarkerView else {
+            return
         }
+        
+        tapOnRoute(pointView: point_view)
+        
 //        route_info.isHidden = false
         // marker_view.image = User.main_user?.avatar
     }
     
     // вызывается когда мы отпускаем начало или конец маршрута
     func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView) {
+        didSelectAnnotation = true
         // here view.isSelected = false
         guard let marker_view = view as? MKMarkerAnnotationView else {
             return
@@ -179,10 +236,11 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
     }
     
     @objc func dismissBottomView() {
-        UIView.animate(withDuration: 0.3) {
-            self.bottomView.frame.origin.y = UIScreen.main.bounds.height
-            self.view.layoutIfNeeded()
-        }
+        didSelectAnnotation = false
+//        UIView.animate(withDuration: 0.3) {
+//            self.bottomView.frame.origin.y = UIScreen.main.bounds.height
+//            self.view.layoutIfNeeded()
+//        }
     }
     
     
@@ -219,7 +277,7 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
 //        routes_to_draw_lock.unlock()
 //    }
     
-    func getDateOfTrip() {
+    func getDateAndAddRoute(finishCoordinates: CLLocationCoordinate2D) {
 //        let alertController = UIAlertController(title: "Date", message: "Enter the date of your trip", preferredStyle: .alert)
 //
 //        alertController.addTextField { (textField) in
@@ -245,13 +303,24 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
         datePicker.datePickerMode = .dateAndTime
         alertController.view.addSubview(datePicker)
 
-        let submitAction = UIAlertAction(title: "Submit", style: .cancel) { (action) in
+        let submitAction = UIAlertAction(title: "Submit", style: .cancel) { [self] (action) in
             let dateFormatter = DateFormatter()
             dateFormatter.dateStyle = .medium
             dateFormatter.timeStyle = .short
-            let date = dateFormatter.string(from: datePicker.date)
-            self.lastDate = date
-            print(self.lastDate)
+            
+            let net_route = NetworkRoute(start: self.lastStartCoordinate, finish: finishCoordinates, owner: self.self_name, date: datePicker.date)
+            DispatchQueue.global().async {
+                User.main_user?.AddRoute(route: net_route)
+            }
+            
+            let new_route = Route(name: self_name, startCoordinate: self.lastStartCoordinate, finishCoordinate: finishCoordinates, initialColor: self_color, routeData: net_route.route)
+            Routes.DrawOne(map_view: self.mapView, route: new_route)
+            User.main_user?.routes_controller_.Insert(route: new_route)
+            self.lastPressIsStart = !lastPressIsStart
+            
+//            let date = dateFormatter.string(from: datePicker.date)
+//            self.lastDate = date
+//            print(self.lastDate)
         }
         
         alertController.addAction(submitAction)
@@ -259,25 +328,55 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
     }
     
     @IBAction func tapMap(_ sender: UITapGestureRecognizer) {
-
+        
         if sender.state == .ended {
+//            let tapLocation = sender.location(in: self.view)
+//            if let subview = self.view.hitTest(tapLocation, with: nil) {
+//                if subview is PointMarkerView {
+//    //                print("Tapped out")
+//                    return
+//                }
+//            }
+            if didSelectAnnotation {
+                return
+            }
+            
             let tappedCoordinate = mapView.convert(sender.location(in: mapView), toCoordinateFrom: mapView)
+            
+//            for annotation in mapView.annotations {
+//                let coordinate1 = CLLocation(latitude: annotation.coordinate.latitude, longitude: annotation.coordinate.longitude)
+//                let coordinate2 = CLLocation(latitude: tappedCoordinate.latitude, longitude: tappedCoordinate.longitude)
+//
+//                let distanceInMeters = coordinate1.distance(from: coordinate2)
+//                print (distanceInMeters / (mapView.region.span.latitudeDelta), "bb\n\n\n\\n\n")
+//                if distanceInMeters / (mapView.region.span.latitudeDelta) < 1000 {
+//                    return
+//                }
+//            }
+            
             let point: Point
             if lastPressIsStart {
-                point = Point(initialType: PointType.finish, initialCoordinate: tappedCoordinate, initialColor: self_color, initialText: nil)
+//                point = Point(initialType: PointType.finish, initialCoordinate: tappedCoordinate, initialColor: self_color, initialText: nil)
+//
+//                let request = MKDirections.Request()
+//                request.source = MKMapItem(placemark: MKPlacemark(coordinate: lastStartCoordinate))
+//                request.destination = MKMapItem(placemark: MKPlacemark(coordinate: tappedCoordinate))
+//                request.transportType = .automobile
+//
+//                getDateOfTrip()
+//
+//                let net_route = NetworkRoute(start: lastStartCoordinate, finish: tappedCoordinate, owner: self_name, date: lastDate!)
+//                DispatchQueue.global().async {
+//                    User.main_user?.AddRoute(route: net_route)
+//                }
+////                lastNetRoute = net_route
+//                let new_route = Route(name: self_name, startCoordinate: lastStartCoordinate, finishCoordinate: tappedCoordinate, initialColor: self_color, routeData: net_route.route)
+//                Routes.DrawOne(map_view: mapView, route: new_route)
+//                User.main_user?.routes_controller_.Insert(route: new_route)
                 
-                let request = MKDirections.Request()
-                request.source = MKMapItem(placemark: MKPlacemark(coordinate: lastStartCoordinate))
-                request.destination = MKMapItem(placemark: MKPlacemark(coordinate: tappedCoordinate))
-                request.transportType = .automobile
                 
-                let net_route = NetworkRoute(start: lastStartCoordinate, finish: tappedCoordinate, owner: self_name, date: Date())
-                DispatchQueue.global().async {
-                    User.main_user?.AddRoute(route: net_route)
-                }
-                let new_route = Route(name: self_name, startCoordinate: lastStartCoordinate, finishCoordinate: tappedCoordinate, initialColor: self_color)
-                Routes.DrawOne(map_view: mapView, route: new_route)
-                User.main_user?.routes_controller_.Insert(route: new_route)
+                getDateAndAddRoute(finishCoordinates: tappedCoordinate)
+                
 //                routes_lock.lock()
 //
 //                routes.insert(Route(name: self_name, startCoordinate: lastStartCoordinate, finishCoordinate: tappedCoordinate, initialColor: self_color))
@@ -293,14 +392,16 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
 //                        self.mapView.addOverlay(polyline)
 //                    }
 //                }
-                
-                getDateOfTrip()
             } else {
                 point = Point(initialType: PointType.start, initialCoordinate: tappedCoordinate, initialColor: self_color, initialText: String(self_name[self_name.startIndex]))
                 lastStartCoordinate = tappedCoordinate
+                
+                lastPressIsStart = !lastPressIsStart
             }
-            lastPressIsStart = !lastPressIsStart
-            mapView.addAnnotation(point)
+//            lastPressIsStart = !lastPressIsStart
+            
+            
+//            mapView.addAnnotation(point)
             
             
             /*let address = CLGeocoder.init()
@@ -361,34 +462,38 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
 //        }
 //    }
     
-    func dropPinZoomIn(placemark:MKPlacemark){
+    func dropPinZoomIn(placemark: MKPlacemark){
         let span = MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
         let region = MKCoordinateRegion(center: placemark.coordinate, span: span)
         mapView.setRegion(region, animated: true)
         
         let point: Point
         if lastPressIsStart {
-            point = Point(initialType: PointType.finish, initialCoordinate: placemark.coordinate, initialColor: self_color, initialText: nil)
-            let request = MKDirections.Request()
-            request.source = MKMapItem(placemark: MKPlacemark(coordinate: lastStartCoordinate))
-            request.destination = MKMapItem(placemark: MKPlacemark(coordinate: placemark.coordinate))
-            request.transportType = .automobile
+//            point = Point(initialType: PointType.finish, initialCoordinate: placemark.coordinate, initialColor: self_color, initialText: nil)
+//            let request = MKDirections.Request()
+//            request.source = MKMapItem(placemark: MKPlacemark(coordinate: lastStartCoordinate))
+//            request.destination = MKMapItem(placemark: MKPlacemark(coordinate: placemark.coordinate))
+//            request.transportType = .automobile
+//
+//            //getDateOfTrip()
+//
+//            let net_route = NetworkRoute(start: lastStartCoordinate, finish: placemark.coordinate, owner: self_name, date: lastDate!)
+////            lastNetRoute = net_route
+//            DispatchQueue.global().async {
+//                User.main_user?.AddRoute(route: net_route)
+//            }
+//            let new_route = Route(name: self_name, startCoordinate: lastStartCoordinate, finishCoordinate: placemark.coordinate, initialColor: self_color, routeData: net_route.route)
+//            Routes.DrawOne(map_view: mapView, route: new_route)
+//            User.main_user?.routes_controller_.Insert(route: new_route)
             
-            let net_route = NetworkRoute(start: lastStartCoordinate, finish: placemark.coordinate, owner: self_name, date: Date())
-            DispatchQueue.global().async {
-                User.main_user?.AddRoute(route: net_route)
-            }
-            let new_route = Route(name: self_name, startCoordinate: lastStartCoordinate, finishCoordinate: placemark.coordinate, initialColor: self_color)
-            Routes.DrawOne(map_view: mapView, route: new_route)
-            User.main_user?.routes_controller_.Insert(route: new_route)
-            
-            getDateOfTrip()
+            getDateAndAddRoute(finishCoordinates: placemark.coordinate)
         } else {
             point = Point(initialType: PointType.start, initialCoordinate: placemark.coordinate, initialColor: self_color, initialText: String(self_name[self_name.startIndex]))
             lastStartCoordinate = placemark.coordinate
+            lastPressIsStart = !lastPressIsStart
         }
-        lastPressIsStart = !lastPressIsStart
-        mapView.addAnnotation(point)
+//        lastPressIsStart = !lastPressIsStart
+//        mapView.addAnnotation(point)
     }
 }
 
@@ -479,11 +584,21 @@ class Point : NSObject, MKAnnotation {
     }
 }
 
+class PointWithData : Point {
+    var data: RouteData?
+    
+    init(point: Point, routeData: RouteData) {
+        super.init(initialType: point.type, initialCoordinate: point.coordinate, initialColor: point.color, initialText: point.text)
+        data = routeData
+    }
+}
+
 class PointMarkerView : MKMarkerAnnotationView {
-    var owner : String?
-    var start : String?
-    var finish : String?
-    var date : String?
+//    var owner : String?
+//    var start : String?
+//    var finish : String?
+//    var date : String?
+    var routeData : RouteData?
     
     override var annotation: MKAnnotation? {
         willSet {
@@ -498,43 +613,47 @@ class PointMarkerView : MKMarkerAnnotationView {
             markerTintColor = point.color
             if point.type  == PointType.start {
                 glyphText = point.text
-                start = parseAddress(coordinate: point.coordinate)
+//                start = parseAddress(coordinate: point.coordinate)
             } else {
                 glyphImage = UIImage(#imageLiteral(resourceName: "Attachments/flag"))
-                finish = parseAddress(coordinate: point.coordinate)
+//                finish = parseAddress(coordinate: point.coordinate)
             }
         }
     }
     
-    func addStart(coordinate: CLLocationCoordinate2D) {
-        start = parseAddress(coordinate: coordinate)
+//    func addStart(coordinate: CLLocationCoordinate2D) {
+//        start = parseAddress(coordinate: coordinate)
+//    }
+//
+//    func addFinish(coordinate: CLLocationCoordinate2D) {
+//        finish = parseAddress(coordinate: coordinate)
+//    }
+//
+//    func addOwner(name : String) {
+//        owner = name
+//    }
+//
+//    func addDate(date : String) {
+//        self.date = date
+//    }
+    
+    func addRouteData(routeData : RouteData) {
+        self.routeData = routeData
     }
     
-    func addFinish(coordinate: CLLocationCoordinate2D) {
-        finish = parseAddress(coordinate: coordinate)
-    }
-    
-    func addOwner(name : String) {
-        owner = name
-    }
-    
-    func addDate(date : String) {
-        self.date = date
-    }
-    
-    func parseAddress(coordinate: CLLocationCoordinate2D) -> String {
-        let placemark = MKPlacemark(coordinate: coordinate)
-        let comma = (placemark.administrativeArea != nil && placemark.locality != nil) ? ", " : ""
-        
-        let addressLine = String(
-            format:"%@%@%@",
-            placemark.administrativeArea ?? "",
-            comma,
-            placemark.locality ?? ""
-        )
-
-        return addressLine
-    }
+//    func parseAddress(coordinate: CLLocationCoordinate2D) -> String {
+//        let placemark = MKPlacemark(coordinate: coordinate)
+//        let comma = (placemark.administrativeArea != nil && placemark.locality != nil) ? ", " : ""
+//
+//        let addressLine = String(
+//            format:"%@%@%@",
+//            placemark.administrativeArea ?? "",
+//            comma,
+//            placemark.locality ?? ""
+//        )
+//
+//        return addressLine
+//    }
 }
 
 class PolylineWithColor : MKPolyline {
@@ -560,11 +679,13 @@ class Route : Hashable {
     let start: Point
     let finish: Point
     let color : UIColor
+    var data : RouteData
     
-    init(name: String, startCoordinate: CLLocationCoordinate2D, finishCoordinate: CLLocationCoordinate2D, initialColor: UIColor) {
+    init(name: String, startCoordinate: CLLocationCoordinate2D, finishCoordinate: CLLocationCoordinate2D, initialColor: UIColor, routeData: RouteData) {
         start = Point(initialType: PointType.start, initialCoordinate: startCoordinate, initialColor: initialColor, initialText: String(name[name.startIndex]))
         finish = Point(initialType: PointType.finish, initialCoordinate: finishCoordinate, initialColor: initialColor, initialText: nil)
         color = initialColor
+        data = routeData
     }
 }
 
@@ -595,8 +716,10 @@ class Routes {
         new_routes_ = new_routes_.subtracting(to_delete)
     }
     static func DrawOne(map_view: MKMapView, route: Route) {
-        map_view.addAnnotation(route.start)
-        map_view.addAnnotation(route.finish)
+        let start = PointWithData(point: route.start, routeData: route.data)
+        let finish = PointWithData(point: route.finish, routeData: route.data)
+        map_view.addAnnotation(start)
+        map_view.addAnnotation(finish)
         
         let request = MKDirections.Request()
         request.source = MKMapItem(placemark: MKPlacemark(coordinate: route.start.coordinate))
@@ -663,7 +786,7 @@ class RoutesController {
         let net_routes = User.main_user!.GetMap()
         var routes_set = Set<Route>()
         for net_route in net_routes.routes {
-            let route = Route(name: net_route.owner, startCoordinate: net_route.start, finishCoordinate: net_route.finish, initialColor: ColorFromName(name: net_route.owner))
+            let route = Route(name: net_route.owner, startCoordinate: net_route.start, finishCoordinate: net_route.finish, initialColor: ColorFromName(name: net_route.owner), routeData: net_route)
             routes_set.insert(route)
         }
         routes_.Assign(routes_set: routes_set)

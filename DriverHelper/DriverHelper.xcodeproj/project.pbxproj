@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		9855D2B12992ED3000A46627 /* Attachments in Resources */ = {isa = PBXBuildFile; fileRef = 9855D2B02992ED3000A46627 /* Attachments */; };
 		9873BC162A0FA3A700BFAD28 /* SearchTableController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9873BC152A0FA3A700BFAD28 /* SearchTableController.swift */; };
+		9873BC1A2A2232B200BFAD28 /* RouteInfoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9873BC192A2232B200BFAD28 /* RouteInfoController.swift */; };
 		F21DF0D2298FCCC600FD9F4D /* Registration.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F21DF0D1298FCCC600FD9F4D /* Registration.storyboard */; };
 		F21DF0D4298FCD7C00FD9F4D /* RegistrationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F21DF0D3298FCD7C00FD9F4D /* RegistrationController.swift */; };
 		F265D3DE2996E3FD00D8A120 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = F265D3DD2996E3FD00D8A120 /* User.swift */; };
@@ -54,6 +55,7 @@
 /* Begin PBXFileReference section */
 		9855D2B02992ED3000A46627 /* Attachments */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Attachments; sourceTree = "<group>"; };
 		9873BC152A0FA3A700BFAD28 /* SearchTableController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchTableController.swift; sourceTree = "<group>"; };
+		9873BC192A2232B200BFAD28 /* RouteInfoController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteInfoController.swift; sourceTree = "<group>"; };
 		F21DF0D1298FCCC600FD9F4D /* Registration.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Registration.storyboard; sourceTree = "<group>"; };
 		F21DF0D3298FCD7C00FD9F4D /* RegistrationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationController.swift; sourceTree = "<group>"; };
 		F265D3DD2996E3FD00D8A120 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
@@ -155,6 +157,7 @@
 				F265D3DD2996E3FD00D8A120 /* User.swift */,
 				9873BC152A0FA3A700BFAD28 /* SearchTableController.swift */,
 				F2F37D862A10390A00CC0D51 /* Route.swift */,
+				9873BC192A2232B200BFAD28 /* RouteInfoController.swift */,
 			);
 			path = DriverHelper;
 			sourceTree = "<group>";
@@ -325,6 +328,7 @@
 				F21DF0D4298FCD7C00FD9F4D /* RegistrationController.swift in Sources */,
 				F27A7523297D9D6A009B9157 /* ViewController.swift in Sources */,
 				F2F37D872A10390A00CC0D51 /* Route.swift in Sources */,
+				9873BC1A2A2232B200BFAD28 /* RouteInfoController.swift in Sources */,
 				F27A7529297D9D6A009B9157 /* DriverHelper.xcdatamodeld in Sources */,
 				F2DAAB41298FEAE100B08D5B /* FriendsController.swift in Sources */,
 				F27A751F297D9D6A009B9157 /* AppDelegate.swift in Sources */,
