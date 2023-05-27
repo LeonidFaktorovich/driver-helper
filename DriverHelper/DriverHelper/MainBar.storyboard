@@ -184,7 +184,6 @@
                     <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="zmv-Ij-dJW">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="49"/>
                         <autoresizingMask key="autoresizingMask"/>
-                        <color key="backgroundColor" red="0.9248145517676768" green="0.91624665751860979" blue="0.91695779268363642" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                     </tabBar>
                     <connections>
                         <segue destination="Jc9-sc-5uc" kind="relationship" relationship="viewControllers" id="1J5-EL-167"/>

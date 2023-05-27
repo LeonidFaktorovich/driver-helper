@@ -44,8 +44,8 @@ class SearchTableController : UITableViewController, UISearchResultsUpdating {
     }
     
     func parseAddress(selectedItem:MKPlacemark) -> String {
-        let firstComma = (selectedItem.administrativeArea != nil && (selectedItem.locality != nil || selectedItem.locality != nil  || selectedItem.administrativeArea != nil)) ? ", " : ""
-        let secondComma = (selectedItem.locality != nil && (selectedItem.locality != nil  || selectedItem.administrativeArea != nil)) ? ", " : ""
+        let firstComma = (selectedItem.administrativeArea != nil && (selectedItem.locality != nil || selectedItem.thoroughfare != nil  || selectedItem.subThoroughfare != nil)) ? ", " : ""
+        let secondComma = (selectedItem.locality != nil && (selectedItem.thoroughfare != nil  || selectedItem.subThoroughfare != nil)) ? ", " : ""
         let thirdComma = (selectedItem.thoroughfare != nil && selectedItem.subThoroughfare != nil) ? ", " : ""
         
         let addressLine = String(
