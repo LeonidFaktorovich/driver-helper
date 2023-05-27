@@ -50,12 +50,22 @@ extension CLLocationCoordinate2D : Codable {
     }
 }
 
+func Decode(str: String) -> String {
+    return str.base64Decoded()
+}
+
+func Encode(str: String) -> String {
+    return str.base64Encoded()
+}
+ 
 struct RouteData : Codable {
     let start: CLLocationCoordinate2D
     let finish: CLLocationCoordinate2D
     let owner: String
     let date_start: String
     let time_start: String
+    var members: [String]
+    var maybe_members: [String]
     
     enum CodingKeys: String, CodingKey {
         case start = "start"
@@ -63,6 +73,8 @@ struct RouteData : Codable {
         case owner = "owner"
         case date_start = "date_start"
         case time_start = "time_start"
+        case members = "approved"
+        case maybe_members = "wait_approve"
     }
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
@@ -78,6 +90,12 @@ struct RouteData : Codable {
         
         let base_time_start: String = time_start.base64Encoded()
         try container.encode(base_time_start, forKey: .time_start)
+        
+        let base_members: [String] = members.map(Encode)
+        try container.encode(base_members, forKey: .members)
+        
+        let base_maybe_members: [String] = maybe_members.map(Encode)
+        try container.encode(base_maybe_members, forKey: .maybe_members)
     }
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -86,6 +104,18 @@ struct RouteData : Codable {
         owner = try container.decode(String.self, forKey: .owner).base64Decoded()
         date_start = try container.decode(String.self, forKey: .date_start).base64Decoded()
         time_start = try container.decode(String.self, forKey: .time_start).base64Decoded()
+        do {
+            let base_members = try container.decode([String].self, forKey: .members)
+            members = base_members.map(Decode)
+        } catch {
+            members = []
+        }
+        do {
+            let base_maybe_members = try container.decode([String].self, forKey: .maybe_members)
+            maybe_members = base_maybe_members.map(Decode)
+        } catch {
+            maybe_members = []
+        }
     }
     init(start: CLLocationCoordinate2D, finish: CLLocationCoordinate2D, owner: String, date: Date) {
         self.start = start
@@ -98,6 +128,8 @@ struct RouteData : Codable {
         let time_formatter = DateFormatter()
         time_formatter.dateFormat = "HH:mm"
         self.time_start = time_formatter.string(from: date)
+        members = []
+        maybe_members = []
     }
 }
 
@@ -350,7 +382,15 @@ extension User {
         let group = DispatchGroup()
         group.enter()
         let task = session.dataTask(with: request) { data, response, error in
-            friends = try! JSONDecoder().decode(Friends.self, from: data!);
+            guard let data = data else {
+                group.leave()
+                return
+            }
+            if data.isEmpty {
+                group.leave()
+                return
+            }
+            friends = try! JSONDecoder().decode(Friends.self, from: data);
             group.leave()
         }
         task.resume()
@@ -368,7 +408,15 @@ extension User {
         let group = DispatchGroup()
         group.enter()
         let task = session.dataTask(with: request) { data, response, error in
-            routes = try! JSONDecoder().decode(NetworkRoutes.self, from: data!);
+            guard let data = data else {
+                group.leave()
+                return
+            }
+            if data.isEmpty {
+                group.leave()
+                return
+            }
+            routes = try! JSONDecoder().decode(NetworkRoutes.self, from: data);
             group.leave()
         }
         task.resume()
