@@ -3,16 +3,6 @@ import UIKit
 import MapKit
 import Contacts
 
-//var routes: Set<Route> = Set<Route>()
-//
-//let routes_lock = NSLock()
-//
-//
-//var routes_to_draw: Set<Route> = Set<Route>()
-//
-//let routes_to_draw_lock = NSLock()
-
-
 protocol HandleMapSearch {
     func dropPinZoomIn(placemark:MKPlacemark)
 }
@@ -43,25 +33,11 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
     var lastDate : String = ""
     
     override func loadView() {
-//        update_lock.lock()
-//
-//        need_to_update = true
-//
-//        update_lock.unlock()
         
         super.loadView()
-//        view.addSubview(bottomView)
-//        view.bringSubviewToFront(bottomView)
         self_name = GetLogin()!
         self_color = ColorFromName(name: self_name)
-//        RepeatDraw()
         AddTapRecognizer()
-//        RepeatUpdateMap()
-        // route_info.isHidden = true
-//        route_info.text = "Hello, World!"
-//        route_info.textAlignment = .center
-//        route_info.isHidden = true
-        //bottomViewController.SetRouteView(route_view: bottomView)
         User.main_user?.routes_controller_.RepeatUpdateAndDraw(map_view: mapView, period: 10.0)
     }
     
@@ -90,7 +66,6 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
         navigationItem.titleView = resultSearchController?.searchBar
         
         resultSearchController?.hidesNavigationBarDuringPresentation = false
-        // resultSearchController?.dimsBackgroundDuringPresentation = true
         definesPresentationContext = true
         searchTable.mapView = mapView
         searchTable.handleMapSearchDelegate = self
@@ -102,11 +77,6 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
         
     }
     override func viewWillDisappear(_ animated: Bool) {
-//        update_lock.lock()
-//
-//        need_to_update = false
-//
-//        update_lock.unlock()
         User.main_user?.routes_controller_.CancelRepeatUpdateAndDraw()
     }
     
@@ -114,25 +84,9 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
         
         var view: PointMarkerView
         view = PointMarkerView(annotation: annotation, reuseIdentifier: "point")
-        
-//        view.canShowCallout = true
-//        let label = UILabel()
-//        label.text = ""
-//        label.textColor = UIColor.blue
-//        label.backgroundColor = UIColor.white
-//        label.textAlignment = .center
-//        label.frame = CGRect(x: -50, y: -20, width: 100, height: 80)
-//        label.numberOfLines = 2
-//        view.detailCalloutAccessoryView = label
 
         if let annotation = annotation as? Point {
-//            view.markerTintColor = annotation.color
-//            if annotation.type == PointType.start {
-//                view.glyphText = annotation.text
-//            } else {
-//                view.glyphImage = UIImage(#imageLiteral(resourceName: "Attachments/flag"))
-//            }
-            
+
             view.addOwner(name: self_name)
             view.addDate(date: lastDate)
             if annotation.type == PointType.start {
@@ -185,59 +139,7 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
         }
     }
     
-    
-//    func DrawRoutes() {
-//        mapView.delegate = self
-//        mapView.setRegion(MKCoordinateRegion(center: initialLocation, latitudinalMeters: regionRadius, longitudinalMeters: regionRadius), animated: true)
-//
-//        for route in routes_to_draw {
-////            mapView.addAnnotation(route.start)
-////            mapView.addAnnotation(route.finish)
-////
-////            let request = MKDirections.Request()
-////            request.source = MKMapItem(placemark: MKPlacemark(coordinate: route.start.coordinate))
-////            request.destination = MKMapItem(placemark: MKPlacemark(coordinate: route.finish.coordinate))
-////            request.transportType = .automobile
-////            let direction = MKDirections(request: request)
-////
-////            direction.calculate { [self] response, error in
-////                if let routeResponse = response?.routes {
-////                    let polyline = PolylineWithColor(points: routeResponse[0].polyline.points(), count: routeResponse[0].polyline.pointCount)
-////                    polyline.color = route.color
-////                    self.mapView.addOverlay(polyline)
-////                }
-////            }
-//            Routes.DrawOne(map_view: mapView, route: route)
-//        }
-//        routes_lock.lock()
-//        routes_to_draw_lock.lock()
-//
-//        routes.formUnion(routes_to_draw)
-//        routes_to_draw.removeAll()
-//
-//        routes_lock.unlock()
-//        routes_to_draw_lock.unlock()
-//    }
-    
     func getDateOfTrip() {
-//        let alertController = UIAlertController(title: "Date", message: "Enter the date of your trip", preferredStyle: .alert)
-//
-//        alertController.addTextField { (textField) in
-//            textField.placeholder = "01.01.0001"
-//            textField.addTarget(alertController, action: #selector(alertController.textDidChange), for: .editingChanged)
-//        }
-//
-//        let saveAction = UIAlertAction(title: "Submit", style: .default) { _ in
-//            let inputDate = alertController.textFields![0].text
-//            if (inputDate != "01.01.0001") {
-//                return;
-//            }
-//            self.lastDate = inputDate!
-//        }
-//
-//        saveAction.isEnabled = false
-//        alertController.addAction(saveAction)
-//        present(alertController, animated: true, completion: nil)
         
         let alertController = UIAlertController(title: "Enter the date and time of your trip", message: "\n\n\n", preferredStyle: .actionSheet)
 
@@ -278,21 +180,6 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
                 let new_route = Route(name: self_name, startCoordinate: lastStartCoordinate, finishCoordinate: tappedCoordinate, initialColor: self_color)
                 Routes.DrawOne(map_view: mapView, route: new_route)
                 User.main_user?.routes_controller_.Insert(route: new_route)
-//                routes_lock.lock()
-//
-//                routes.insert(Route(name: self_name, startCoordinate: lastStartCoordinate, finishCoordinate: tappedCoordinate, initialColor: self_color))
-//
-//                routes_lock.unlock()
-//
-//                let direction = MKDirections(request: request)
-//
-//                direction.calculate { [self] response, error in
-//                    if let routeResponse = response?.routes {
-//                        let polyline = PolylineWithColor(points: routeResponse[0].polyline.points(), count: routeResponse[0].polyline.pointCount)
-//                        polyline.color = self_color
-//                        self.mapView.addOverlay(polyline)
-//                    }
-//                }
                 
                 getDateOfTrip()
             } else {
@@ -302,18 +189,6 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
             lastPressIsStart = !lastPressIsStart
             mapView.addAnnotation(point)
             
-            
-            /*let address = CLGeocoder.init()
-            address.reverseGeocodeLocation(CLLocation(latitude: point.coordinate.latitude, longitude: point.coordinate.longitude)) { (places, error) in
-                    if error == nil{
-                        if let place = places{
-                            let address = place[0].postalAddress
-                            if ((address) != nil) {
-                                print(CNPostalAddressFormatter.string(from: address!, style: .mailingAddress))
-                            }
-                        }
-                    }
-                }*/
         }
     }
     
@@ -330,36 +205,6 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
 
         tapRecognizer.require(toFail: doubleTapRecognizer)
     }
-//    func UpdateMap() {
-//        update_lock.lock()
-//        if !need_to_update {
-//            update_lock.unlock()
-//            return
-//        }
-//        update_lock.unlock()
-//        let net_routes = User.main_user!.GetMap()
-//        for net_route in net_routes.routes {
-//            let route = Route(name: net_route.owner, startCoordinate: net_route.start, finishCoordinate: net_route.finish, initialColor: ColorFromName(name: net_route.owner))
-//
-//            routes_lock.lock()
-//            routes_to_draw_lock.lock()
-//
-//            if !routes.contains(route) {
-//                routes_to_draw.insert(route)
-//            }
-//
-//            routes_to_draw_lock.unlock()
-//            routes_lock.unlock()
-//        }
-//        DrawRoutes()
-//        RepeatUpdateMap()
-//    }
-//    func RepeatUpdateMap() {
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 15.0) // - выполнить через 15 сек.
-//        { [self] in
-//           UpdateMap()
-//        }
-//    }
     
     func dropPinZoomIn(placemark:MKPlacemark){
         let span = MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
@@ -391,35 +236,6 @@ class MapController: UIViewController, MKMapViewDelegate, HandleMapSearch {
         mapView.addAnnotation(point)
     }
 }
-
-//extension UIAlertController {
-//    func isValidDate(_ date: String) -> Bool {
-//        if date.count != 10 {
-//            return false
-//        }
-//
-//        for i in 0..<date.count {
-//            let index = date.index(date.startIndex, offsetBy: i)
-//            if i == 2 || i == 5 {
-//                if date[index] != "." {
-//                    return false;
-//                }
-//            } else {
-//                if !date[index].isNumber {
-//                    return false;
-//                }
-//            }
-//        }
-//        return true;
-//    }
-//
-//    @objc func textDidChange() {
-//        if let date = textFields?[0].text,
-//           let action = actions.last {
-//            action.isEnabled = isValidDate(date)
-//        }
-//    }
-//}
 
 func ColorFromName(name: String) -> UIColor {
     let name_to_color_table: [Character: UIColor] = [
@@ -492,8 +308,6 @@ class PointMarkerView : MKMarkerAnnotationView {
             }
             canShowCallout = true
             
-//            calloutOffset = CGPoint(x: -5, y: 5)
-//            rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
             
             markerTintColor = point.color
             if point.type  == PointType.start {

@@ -102,40 +102,6 @@ class RouteView : UIView {
 
 class RouteViewController : UITableViewController {
     weak var route_view_: RouteView?
-//    private var owner  = UILabel()
-//    private var start = UILabel()
-//    private var finish = UILabel()
-//    private var date = UILabel()
-//    private var members = UITableView()
-//    private var maybe_members = UITableView()
-//
-//    override func loadView() {
-//        super.loadView()
-//        view.addSubview(members)
-//        view.addSubview(maybe_members)
-//
-//        let leftStackView = UIStackView(arrangedSubviews: [owner, start, finish, date])
-//        leftStackView.axis = .vertical
-//        view.addSubview(leftStackView)
-//
-//        let rightStackView = UIStackView(arrangedSubviews: [members, maybe_members])
-//        rightStackView.axis = .vertical
-//        view.addSubview(rightStackView)
-//
-//        let screenWidth = UIScreen.main.bounds.width
-//        leftStackView.widthAnchor.constraint(equalToConstant: screenWidth / 2).isActive = true
-//        rightStackView.widthAnchor.constraint(equalToConstant: screenWidth / 2).isActive = true
-//
-//        members.delegate = self
-//        maybe_members.delegate = self
-//    }
-//
-//    override func viewDidLoad() {
-//        super.viewDidLoad()
-//        owner.text = "leonid"
-//        start.text = "HELLO WORLD"
-//
-//    }
     var cur_route_: Route?
     
     func SetRouteView(route_view: RouteView) {
