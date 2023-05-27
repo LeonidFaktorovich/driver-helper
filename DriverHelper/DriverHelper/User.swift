@@ -184,6 +184,7 @@ struct Friends : Codable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         friends = try container.decode([String].self, forKey: .friends)
+        friends = friends.map(Decode)
     }
     init() {
         friends = []
@@ -395,6 +396,7 @@ extension User {
         }
         task.resume()
         group.wait()
+        // friends.friends = friends.friends.map(Decode)
         return friends
     }
     func GetMap() -> NetworkRoutes {
